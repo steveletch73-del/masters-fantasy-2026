@@ -86,17 +86,17 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .espn-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05)}
 .espn-tbl{width:100%;border-collapse:collapse;font-size:12px}
 .espn-tbl thead tr{background:var(--green-dark)}
-.espn-tbl thead th{padding:9px 8px;color:var(--gold-light);font-weight:600;font-size:11px;text-align:center;white-space:nowrap}
-.espn-tbl thead th.th-name{text-align:left}
+.espn-tbl thead th{padding:7px 4px;color:var(--gold-light);font-weight:600;font-size:10px;text-align:center;white-space:nowrap}
+.espn-tbl thead th.th-name{text-align:left;padding-left:6px}
 .espn-tbl tbody tr{border-bottom:1px solid var(--border-soft);transition:background .12s}
 .espn-tbl tbody tr:last-child{border-bottom:none}
 .espn-tbl tbody tr:active{background:#f5f5f5}
-.espn-tbl td{padding:8px 8px;vertical-align:middle;text-align:center;white-space:nowrap}
-.e-pos{font-size:11px;color:var(--text-soft)}
-.e-name{font-size:13px;font-weight:500;color:var(--text);text-align:left}
-.e-score{font-size:13px;font-weight:700}
-.e-thru{font-size:11px;color:var(--text-soft)}
-.e-today{font-size:12px;font-weight:600}
+.espn-tbl td{padding:7px 4px;vertical-align:middle;text-align:center;white-space:nowrap}
+.e-pos{font-size:10px;color:var(--text-soft);width:28px}
+.e-name{font-size:12px;font-weight:500;color:var(--text);text-align:left;padding-left:6px}
+.e-score{font-size:13px;font-weight:700;width:42px}
+.e-thru{font-size:11px;color:var(--text-soft);width:36px}
+.e-today{font-size:12px;font-weight:600;width:38px}
 .cut-divider td{background:#fff3f3;color:var(--over);font-size:11px;font-weight:600;padding:5px 10px;border-top:2px solid #f5c6c6;border-bottom:2px solid #f5c6c6;text-align:left}
 .proj-cut-divider td{background:#fff8e6;color:#8a6200;font-size:11px;font-weight:600;padding:5px 10px;border-top:2px solid #f0d080;border-bottom:2px dashed #f0d080;text-align:left}
 .espn-err{padding:24px 16px;text-align:center;color:var(--text-soft);font-size:13px}
@@ -233,8 +233,9 @@ function norm(s){
 }
 function find(players,name){
   const n=norm(name);
-  return players.find(p=>norm(p.name)===n)
-      || players.find(p=>{ const pn=norm(p.name); return n.split(' ').every(w=>w.length>1&&pn.includes(w)); });
+  const all=[...players,...(players._cut||[])];
+  return all.find(p=>norm(p.name)===n)
+      || all.find(p=>{ const pn=norm(p.name); return n.split(' ').every(w=>w.length>1&&pn.includes(w)); });
 }
 function fmt(n){ return n===0?'E':n>0?'+'+n:''+n; }
 function scls(n){ return n<0?'u':n>0?'o':'e'; }
@@ -292,7 +293,10 @@ function parseESPNJson(data){
 
       // Position / cut status
       const posRaw=c.status?.position?.displayName||c.status?.displayValue||'--';
-      const isCut=/^(CUT|WD|DQ|MDF|W\/D)$/i.test(posRaw)||c.status?.eliminated===true;
+      const statusTypeName=c.status?.type?.name||'';
+      const isCut=/^(CUT|WD|DQ|MDF|W\/D)$/i.test(posRaw)
+              ||c.status?.eliminated===true
+              ||/cut|wd|dq|mdf/i.test(statusTypeName);
       const pos=isCut?(posRaw||'CUT'):posRaw;
 
       // ── Score to par ──────────────────────────────────────────────────────
@@ -386,13 +390,19 @@ function parseESPNJson(data){
       }
     }
   }catch(e){console.warn('projCut parse error',e);}
+  // Determine current round from competition status or max linescores on active players
+  const compStatus=data?.events?.[0]?.competitions?.[0]?.status;
+  const currentRound=compStatus?.period||Math.max(...out.map(p=>Array.isArray(p._ls)?p._ls:0),1);
+  const r2Complete = currentRound>=3 || (currentRound===2 && compStatus?.type?.completed===true);
+  out._r2Complete=r2Complete;
+
   // If ESPN didn't give us a cut, compute it ourselves:
   // The Masters cuts to low 50 players and ties.
   if(projCut===3 && out.length>0){
     const sorted=[...out].sort((a,b)=>a.score-b.score);
     if(sorted.length>=50){
       const cutScore=sorted[49].score; // 50th player (0-indexed)
-      projCut=cutScore; // cut includes all ties at this score
+      projCut=cutScore;
     }
   }
   out._projCut=projCut;
@@ -409,7 +419,7 @@ function renderLB(pl){
   list.forEach((t,i)=>{
     const rc=i<3?rowG[i]:'';
     const rnk=i<3?`<div class="lb-medal">${medals[i]}</div>`:i===8?`<div class="lb-medal">👢</div>`:`<div class="lb-numrank">${i+1}</div>`;
-    const ptext=t.picks.map(nm=>{ const p=find(pl,nm); return nm.split(' ').pop()+(p?' ('+fmt(p.score)+')':''); }).join(' · ');
+    const ptext=t.picks.map(nm=>{ const p=find(pl,nm); const cut=p?.cut===true; const active=p&&!cut&&p.thru!=='F'&&p.thru!=='--'&&!p.teeTime; const txt=nm.split(' ').pop()+(p?' ('+fmt(p.score)+')':''); return cut?`<span style="color:var(--over)">${txt}</span>`:active?`<span style="color:var(--green)">${txt}</span>`:txt; }).join(' · ');
     h+=`<div class="lb-row ${rc}" onclick="switchToTeam(${i})">
       ${rnk}
       <div>
@@ -430,11 +440,13 @@ function renderTeams(pl){
   list.forEach((t,i)=>{
     const rows=t.picks.map(nm=>{
       const p=find(pl,nm);
-      const thru=!p?'--':p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru;
+      const isCut=p?.cut===true;
+      const thru=!p?'--':isCut?'<span class="fin" style="color:var(--over)">CUT</span>':p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru;
       const sc=p!=null?`<span class="${scls(p.score)}">${fmt(p.score)}</span>`:'<span style="color:#ccc">--</span>';
-      const hasStarted=p&&p.thru!=='--'&&!p.teeTime;
+      const hasStarted=p&&!isCut&&p.thru!=='--'&&!p.teeTime;
       const todayTxt=(hasStarted&&p.today!=null)?`<span class="${scls(p.today)}">${fmt(p.today)}</span>`:'';
-      return `<tr><td class="c-pos">${p?p.pos:'--'}</td><td class="c-name">${nm}</td><td class="c-thru">${thru}</td><td class="c-score">${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
+      const rowStyle=isCut?'background:#fdecea;':'';
+      return `<tr style="${rowStyle}"><td class="c-pos">${p?p.pos:'--'}</td><td class="c-name">${nm}</td><td class="c-thru">${thru}</td><td class="c-score">${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
     }).join('');
     h+=`<div class="tc" id="team-${i}">
       <div class="tc-hd">
@@ -450,53 +462,64 @@ function renderTeams(pl){
 // ─── RENDER ESPN SCORES ───────────────────────────────────────────────────────
 function renderESPN(pl){
   const PROJ_CUT = (typeof pl._projCut==='number') ? pl._projCut : 3;
+  const r2Complete = pl._r2Complete===true;
+  // After R2: active players are those ESPN hasn't marked CUT/WD/DQ — sort by score
+  // Projected cut banner only shown during R1/R2; after cut is real it uses ESPN's own cut list
   const active=[...pl].sort((a,b)=>a.score-b.score);
-  const cutPlayers=pl._cut||[];
+  const cutPlayers=[...(pl._cut||[])].sort((a,b)=>a.score-b.score);
   if(!active.length&&!cutPlayers.length){
     document.getElementById('espn-content').innerHTML='<div class="espn-wrap"><div class="espn-err">No data available</div></div>';
     return;
   }
   function fmtScore(s){ return s===0?'<span class="e">E</span>':s>0?`<span class="o">+${s}</span>`:`<span class="u">${s}</span>`; }
   function fmtToday(p){
-    // Only show today for players who have actually started (thru is a number or F, not a tee-time string)
     const started = p.thru==='F' || (p.thru!=='--' && !p.teeTime && /^\d+$/.test(p.thru));
     if(!started || p.today===null || p.today===undefined) return '<span style="color:#ccc">--</span>';
     const s=p.today;
     return s===0?'<span class="e">E</span>':s>0?`<span class="o">+${s}</span>`:`<span class="u">${s}</span>`;
   }
-  let rows='';
-  let projCutInserted=false;
-  let cutInserted=false;
-  active.forEach(p=>{
-    // Insert projected cut line banner AFTER players at PROJ_CUT, before first player above it
-    if(!projCutInserted && p.score>PROJ_CUT){
-      projCutInserted=true;
-      const cutLabel=PROJ_CUT===0?'E':PROJ_CUT>0?`+${PROJ_CUT}`:`${PROJ_CUT}`;
-      rows+=`<tr class="proj-cut-divider"><td colspan="5">✂ PROJECTED CUT — players above (${cutLabel}) may miss cut</td></tr>`;
-    }
-    const thruTxt = p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru||'--';
-    const projCutClass = (!projCutInserted || p.score>=PROJ_CUT) ? '' : '';
-    const belowCutStyle = projCutInserted && p.score>PROJ_CUT ? 'style="opacity:.65"' : '';
-    rows+=`<tr ${belowCutStyle}>
+  function shortName(n){
+    // Only shorten if the full name is longer than 20 chars
+    if(n.length<=20) return n;
+    const parts=n.trim().split(' ');
+    if(parts.length<2) return n;
+    return parts[0][0]+'. '+parts.slice(1).join(' ');
+  }
+  function playerRow(p, dimmed=false){
+    const thruTxt = p.cut?'<span class="fin" style="color:var(--over)">CUT</span>':p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru||'--';
+    return `<tr ${dimmed?'style="opacity:.55"':''}>
       <td class="e-pos">${p.pos}</td>
-      <td class="e-name">${p.name}</td>
+      <td class="e-name">${shortName(p.name)}</td>
       <td class="e-score">${fmtScore(p.score)}</td>
       <td class="e-thru">${thruTxt}</td>
       <td class="e-today">${fmtToday(p)}</td>
     </tr>`;
-  });
-  if(cutPlayers.length){
-    rows+=`<tr class="cut-divider"><td colspan="5">✂ CUT / WD / DQ</td></tr>`;
-    cutPlayers.forEach(p=>{
-      const thruTxt = p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru||'--';
-      rows+=`<tr style="opacity:.55">
-        <td class="e-pos">${p.pos}</td>
-        <td class="e-name">${p.name}</td>
-        <td class="e-score">${fmtScore(p.score)}</td>
-        <td class="e-thru">${thruTxt}</td>
-        <td class="e-today">${fmtToday(p)}</td>
-      </tr>`;
+  }
+  let rows='';
+  if(r2Complete){
+    // Cut is real — all active players made the cut, show them sorted by score
+    active.forEach(p=>{ rows+=playerRow(p,false); });
+    // Then the real cut divider with cut players below
+    if(cutPlayers.length){
+      rows+=`<tr class="cut-divider"><td colspan="5">✂ CUT / WD / DQ</td></tr>`;
+      cutPlayers.forEach(p=>{ rows+=playerRow(p,true); });
+    }
+  } else {
+    // R1/R2 in progress — show projected cut banner between survivors and bubble players
+    let projCutInserted=false;
+    active.forEach(p=>{
+      if(!projCutInserted && p.score>PROJ_CUT){
+        projCutInserted=true;
+        const cutLabel=PROJ_CUT===0?'E':PROJ_CUT>0?`+${PROJ_CUT}`:`${PROJ_CUT}`;
+        rows+=`<tr class="proj-cut-divider"><td colspan="5">✂ PROJECTED CUT (${cutLabel}) — players below may miss cut</td></tr>`;
+      }
+      const dimmed=projCutInserted && p.score>PROJ_CUT;
+      rows+=playerRow(p,dimmed);
     });
+    if(cutPlayers.length){
+      rows+=`<tr class="cut-divider"><td colspan="5">✂ CUT / WD / DQ</td></tr>`;
+      cutPlayers.forEach(p=>{ rows+=playerRow(p,true); });
+    }
   }
   document.getElementById('espn-content').innerHTML=`
     <div class="espn-wrap">
