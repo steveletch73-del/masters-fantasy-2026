@@ -99,7 +99,21 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .e-today{font-size:12px;font-weight:600;width:38px}
 .cut-divider td{background:#fff3f3;color:var(--over);font-size:11px;font-weight:600;padding:5px 10px;border-top:2px solid #f5c6c6;border-bottom:2px solid #f5c6c6;text-align:left}
 .proj-cut-divider td{background:#fff8e6;color:#8a6200;font-size:11px;font-weight:600;padding:5px 10px;border-top:2px solid #f0d080;border-bottom:2px dashed #f0d080;text-align:left}
+.pos-arrow{font-size:10px;opacity:0;transition:opacity .3s;margin-left:2px;font-weight:700}
+.sc-expand{background:#f8f6f1}
+.sc-wrap{padding:10px 14px 12px}
+.sc-half-title{font-size:10px;font-weight:600;color:#999;letter-spacing:.5px;text-transform:uppercase;margin:8px 0 4px}
+.sc-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.sc-tbl th{color:#999;font-weight:500;padding:3px 3px;text-align:center;border-bottom:1px solid #e2e2e2;font-size:10px}
+.sc-tbl td{padding:4px 3px;text-align:center;font-weight:600;font-size:11px}
+.sc-tbl .par-row td{color:#999;font-weight:400;font-size:10px}
+.sc-birdie{color:#1a6b3a}.sc-bogey{color:#b83232}.sc-double{color:#b83232;text-decoration:underline}.sc-eagle{color:#1a4fa0}.sc-par{color:#444}
+.sc-no-data{font-size:11px;color:#999;padding:10px 0;text-align:center}
 .espn-err{padding:24px 16px;text-align:center;color:var(--text-soft);font-size:13px}
+@keyframes flashGreen{0%{background:#c8f0d8}60%{background:#c8f0d8}100%{background:transparent}}
+@keyframes flashRed{0%{background:#fcd4d4}60%{background:#fcd4d4}100%{background:transparent}}
+.flash-down{animation:flashGreen 1.4s ease-out}
+.flash-up{animation:flashRed 1.4s ease-out}
 </style>
 </head>
 <body>
@@ -364,6 +378,7 @@ function parseESPNJson(data){
         if(raw!=null){ const v=parseS(String(raw)); if(v!==null) today=v; }
       }
 
+
       const entry={pos,name,score:scoreVal,thru,teeTime,today,cut:isCut};
       if(isCut) cut.push(entry); else out.push(entry);
     });
@@ -418,15 +433,17 @@ function renderLB(pl){
   let h='';
   list.forEach((t,i)=>{
     const rc=i<3?rowG[i]:'';
-    const rnk=i<3?`<div class="lb-medal">${medals[i]}</div>`:i===8?`<div class="lb-medal">👢</div>`:`<div class="lb-numrank">${i+1}</div>`;
+    const lbArr=lbArrows[t.name];
+    const lbArrHtml=lbArr?`<span style="font-size:11px;font-weight:700;margin-left:3px;color:${lbArr==='up'?'#1a6b3a':'#b83232'}">${lbArr==='up'?'▲':'▼'}</span>`:'';
+    const rnk=i<3?`<div class="lb-medal">${medals[i]}${lbArrHtml}</div>`:i===8?`<div class="lb-medal">👢${lbArrHtml}</div>`:`<div class="lb-numrank">${i+1}${lbArrHtml}</div>`;
     const ptext=t.picks.map(nm=>{ const p=find(pl,nm); const cut=p?.cut===true; const active=p&&!cut&&p.thru!=='F'&&p.thru!=='--'&&!p.teeTime; const txt=nm.split(' ').pop()+(p?' ('+fmt(p.score)+')':''); return cut?`<span style="color:var(--over)">${txt}</span>`:active?`<span style="color:var(--green)">${txt}</span>`:txt; }).join(' · ');
-    h+=`<div class="lb-row ${rc}" onclick="switchToTeam(${i})">
+    h+=`<div class="lb-row ${rc}" onclick="switchToTeam(${i})" data-lb-pos-name="${t.name}" data-lb-pos-val="${i+1}">
       ${rnk}
       <div>
         <div class="lb-name">${t.name} <span style="font-size:11px;letter-spacing:1px">${'⭐'.repeat(t.stars||0)}</span></div>
         <div class="lb-picks">${ptext}</div>
       </div>
-      <div class="lb-score ${scls(t.total)}">${fmt(t.total)}</div>
+      <div class="lb-score ${scls(t.total)}" data-score-name="lb-${t.name}" data-score-val="${t.total}">${fmt(t.total)}</div>
     </div>`;
   });
   document.getElementById('lb-content').innerHTML=h;
@@ -446,7 +463,8 @@ function renderTeams(pl){
       const hasStarted=p&&!isCut&&p.thru!=='--'&&!p.teeTime;
       const todayTxt=(hasStarted&&p.today!=null)?`<span class="${scls(p.today)}">${fmt(p.today)}</span>`:'';
       const rowStyle=isCut?'background:#fdecea;':'';
-      return `<tr style="${rowStyle}"><td class="c-pos">${p?p.pos:'--'}</td><td class="c-name">${nm}</td><td class="c-thru">${thru}</td><td class="c-score">${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
+      const scoreAttr=p?`data-score-name="${p.name}" data-score-val="${p.score}"`:'';
+      return `<tr style="${rowStyle}"><td class="c-pos">${p?p.pos:'--'}</td><td class="c-name">${nm}</td><td class="c-thru">${thru}</td><td class="c-score" ${scoreAttr}>${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
     }).join('');
     h+=`<div class="tc" id="team-${i}">
       <div class="tc-hd">
@@ -457,6 +475,49 @@ function renderTeams(pl){
     </div>`;
   });
   document.getElementById('teams-content').innerHTML=h;
+}
+
+
+function buildScorecard(p){
+  if(!p.holes||!p.holes.length) return '<div class="sc-no-data">No hole data available yet</div>';
+  function hCell(h){
+    const par=AUGUSTA_PARS[h.hole-1];
+    const d=h.score-par;
+    const cls=d<=-2?'sc-eagle':d===-1?'sc-birdie':d===1?'sc-bogey':d>=2?'sc-double':'sc-par';
+    // Circle for birdie, square for bogey+, double-circle for eagle
+    let style='';
+    if(d<=-2) style='outline:2px solid #1a4fa0;outline-offset:1px;border-radius:50%;display:inline-block;width:18px;line-height:18px;';
+    else if(d===-1) style='border:1px solid #1a6b3a;border-radius:50%;display:inline-block;width:18px;line-height:18px;';
+    else if(d===1) style='border:1px solid #b83232;display:inline-block;width:18px;line-height:18px;';
+    else if(d>=2) style='border:2px solid #b83232;display:inline-block;width:18px;line-height:18px;';
+    return `<td class="${cls}"><span style="${style}">${h.score}</span></td>`;
+  }
+  function half(start,end){
+    const holes=p.holes.filter(h=>h.hole>=start&&h.hole<=end);
+    const pars=AUGUSTA_PARS.slice(start-1,end);
+    const halfPar=pars.reduce((a,b)=>a+b,0);
+    let nums='',prow='',srow='';
+    for(let i=start;i<=end;i++){
+      const h=holes.find(x=>x.hole===i);
+      nums+=`<th>${i}</th>`;
+      prow+=`<td>${AUGUSTA_PARS[i-1]}</td>`;
+      srow+=h?hCell(h):'<td style="color:#ddd">·</td>';
+    }
+    const played=holes.length;
+    const tot=holes.reduce((s,h)=>s+h.score,0);
+    const playedPar=AUGUSTA_PARS.slice(start-1,start-1+played).reduce((a,b)=>a+b,0);
+    const diff=tot-playedPar;
+    const totTxt=played?`<td style="font-weight:700;font-size:12px;color:${diff<0?'#1a6b3a':diff>0?'#b83232':'#5a5a5a'}">${diff===0?'E':diff>0?'+'+diff:diff}</td>`:'<td style="color:#ccc">-</td>';
+    return `<table class="sc-tbl"><thead><tr><th></th>${nums}<th></th></tr></thead>
+      <tbody>
+        <tr class="par-row"><td>Par</td>${prow}<td>${halfPar}</td></tr>
+        <tr><td></td>${srow}${totTxt}</tr>
+      </tbody></table>`;
+  }
+  const maxHole=Math.max(...p.holes.map(h=>h.hole));
+  let out=`<div class="sc-half-title">Front 9</div>${half(1,9)}`;
+  if(maxHole>9) out+=`<div class="sc-half-title" style="margin-top:10px">Back 9</div>${half(10,18)}`;
+  return out;
 }
 
 // ─── RENDER ESPN SCORES ───────────────────────────────────────────────────────
@@ -487,10 +548,13 @@ function renderESPN(pl){
   }
   function playerRow(p, dimmed=false){
     const thruTxt = p.cut?'<span class="fin" style="color:var(--over)">CUT</span>':p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru||'--';
+    const posNum=parseInt((p.pos||'').replace(/[^0-9]/g,''));
+    const espnArr=espnArrows[p.name];
+    const espnArrHtml=espnArr?`<span class="pos-arrow" style="color:${espnArr==='up'?'#1a6b3a':'#b83232'}">${espnArr==='up'?'▲':'▼'}</span>`:''
     return `<tr ${dimmed?'style="opacity:.55"':''}>
-      <td class="e-pos">${p.pos}</td>
+      <td class="e-pos" data-pos-name="${p.name}" data-pos-val="${posNum||9999}">${p.pos}${espnArrHtml}</td>
       <td class="e-name">${shortName(p.name)}</td>
-      <td class="e-score">${fmtScore(p.score)}</td>
+      <td class="e-score" data-score-name="${p.name}" data-score-val="${p.score}">${fmtScore(p.score)}</td>
       <td class="e-thru">${thruTxt}</td>
       <td class="e-today">${fmtToday(p)}</td>
     </tr>`;
@@ -549,6 +613,69 @@ function switchToTeam(i){
 }
 
 // ─── FETCH ────────────────────────────────────────────────────────────────────
+// Store previous scores and positions to detect changes
+let prevScores={};
+let prevESPNPos={};   // ESPN player positions
+let prevLBPos={};     // Leaderboard team positions
+let espnArrows={};    // name -> 'up'|'down'
+let lbArrows={};      // team name -> 'up'|'down'
+
+function flashChanges(){
+  // ── Score flashes (all tabs) ──────────────────────────────────────────────
+  document.querySelectorAll('[data-score-name]').forEach(el=>{
+    const name=el.dataset.scoreName;
+    const score=parseInt(el.dataset.scoreVal);
+    if(prevScores[name]!==undefined && prevScores[name]!==score){
+      const cls=score<prevScores[name]?'flash-down':'flash-up';
+      el.classList.remove('flash-down','flash-up');
+      void el.offsetWidth;
+      el.classList.add(cls);
+    }
+    prevScores[name]=score;
+  });
+
+  // ── ESPN position arrows ──────────────────────────────────────────────────
+  const newESPNPos={};
+  document.querySelectorAll('[data-pos-name]').forEach(el=>{
+    const name=el.dataset.posName;
+    const pos=parseInt(el.dataset.posVal);
+    if(!isNaN(pos)) newESPNPos[name]=pos;
+  });
+  let espnChanged=false;
+  Object.keys(newESPNPos).forEach(name=>{
+    if(prevESPNPos[name]!==undefined && prevESPNPos[name]!==newESPNPos[name]){
+      espnArrows[name]=newESPNPos[name]<prevESPNPos[name]?'up':'down';
+      espnChanged=true;
+    }
+  });
+  prevESPNPos=newESPNPos;
+  if(espnChanged){
+    // Re-render ESPN to show arrows, then fade after 8s
+    if(window._lastPlayers) renderESPN(window._lastPlayers);
+    setTimeout(()=>{espnArrows={};if(window._lastPlayers)renderESPN(window._lastPlayers);},8000);
+  }
+
+  // ── Leaderboard position arrows ───────────────────────────────────────────
+  const newLBPos={};
+  document.querySelectorAll('[data-lb-pos-name]').forEach(el=>{
+    const name=el.dataset.lbPosName;
+    const pos=parseInt(el.dataset.lbPosVal);
+    if(!isNaN(pos)) newLBPos[name]=pos;
+  });
+  let lbChanged=false;
+  Object.keys(newLBPos).forEach(name=>{
+    if(prevLBPos[name]!==undefined && prevLBPos[name]!==newLBPos[name]){
+      lbArrows[name]=newLBPos[name]<prevLBPos[name]?'up':'down';
+      lbChanged=true;
+    }
+  });
+  prevLBPos=newLBPos;
+  if(lbChanged){
+    if(window._lastPlayers) renderLB(window._lastPlayers);
+    setTimeout(()=>{lbArrows={};if(window._lastPlayers)renderLB(window._lastPlayers);},8000);
+  }
+}
+
 const ESPN_API='https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=401811941';
 
 async function fetchAndRender(){
@@ -575,13 +702,16 @@ async function fetchAndRender(){
     const now=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     stat.innerHTML=`<b>Live</b> · ${players.length} players · Updated ${now}`;
     document.getElementById('foot').innerHTML=`Live scores from ESPN API · Updated ${now} · Refresh for latest`;
+    window._lastPlayers=players;
     renderLB(players);
     renderTeams(players);
     renderESPN(players);
+    flashChanges();
   } else {
     dot.className='dot err';
     stat.innerHTML='⚠️ Live fetch failed · Showing last known scores';
     document.getElementById('foot').innerHTML='Could not reach ESPN · Showing snapshot · Try refreshing later';
+    window._lastPlayers=FALLBACK;
     renderLB(FALLBACK);
     renderTeams(FALLBACK);
     renderESPN(FALLBACK);
