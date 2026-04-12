@@ -99,7 +99,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .e-today{font-size:12px;font-weight:600;width:38px}
 .cut-divider td{background:#fff3f3;color:var(--over);font-size:11px;font-weight:600;padding:5px 10px;border-top:2px solid #f5c6c6;border-bottom:2px solid #f5c6c6;text-align:left}
 .proj-cut-divider td{background:#fff8e6;color:#8a6200;font-size:11px;font-weight:600;padding:5px 10px;border-top:2px solid #f0d080;border-bottom:2px dashed #f0d080;text-align:left}
-.pos-arrow{font-size:10px;opacity:0;transition:opacity .3s;margin-left:2px;font-weight:700}
+.pos-arrow{font-size:10px;margin-left:2px;font-weight:700}
 .sc-expand{background:#f8f6f1}
 .sc-wrap{padding:10px 14px 12px}
 .sc-half-title{font-size:10px;font-weight:600;color:#999;letter-spacing:.5px;text-transform:uppercase;margin:8px 0 4px}
@@ -276,20 +276,8 @@ function parseESPNJson(data){
   };
   try{
     const competitors=data?.events?.[0]?.competitions?.[0]?.competitors||[];
-    // Debug: log first competitor's raw data
-    if(competitors[0]) console.log('ESPN competitor sample:', JSON.stringify({
-      score: competitors[0].score, scoreValue: competitors[0].scoreValue,
-      statistics: competitors[0].statistics, status: competitors[0].status,
-      linescores: competitors[0].linescores,
-      teeTime: competitors[0].teeTime, startTime: competitors[0].startTime,
-    }, null, 2));
     // Also log an in-progress player if one exists
     const inProg=competitors.find(x=>x.status?.thru>0&&x.status?.type?.name!=='STATUS_FINISHED');
-    if(inProg) console.log('ESPN in-progress sample:', JSON.stringify({
-      name: inProg.athlete?.displayName,
-      score: inProg.score, statistics: inProg.statistics,
-      linescores: inProg.linescores, status: inProg.status,
-    }, null, 2));
 
     // Convert a UTC ISO tee time string to UK local time (BST/GMT)
     const toUKTime=iso=>{
@@ -582,7 +570,7 @@ function renderESPN(pl){
     const thruTxt = p.cut?'<span class="fin" style="color:var(--over)">CUT</span>':p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru||'--';
     const posNum=parseInt((p.pos||'').replace(/[^0-9]/g,''));
     const espnArr=espnArrows[p.name];
-    const espnArrHtml=espnArr?`<span class="pos-arrow" style="color:${espnArr==='up'?'#1a6b3a':'#b83232'}">${espnArr==='up'?'▲':'▼'}</span>`:''
+    const espnArrHtml=espnArr?`<span class="pos-arrow" style="color:${espnArr==='up'?'#1a6b3a':'#b83232'}">${espnArr==='up'?'▲':'▼'}</span>`:``
     return `<tr ${dimmed?'style="opacity:.55"':''}>
       <td class="e-pos" data-pos-name="${p.name}" data-pos-val="${posNum||9999}">${p.pos}${espnArrHtml}</td>
       <td class="e-name">${shortName(p.name)}</td>
@@ -665,49 +653,9 @@ function flashChanges(){
       void el.offsetWidth;
       el.classList.add(cls);
     }
-    prevScores[name]=score;
+    // prevScores updated after render in fetchAndRender, not here
   });
 
-  // ── ESPN position arrows ──────────────────────────────────────────────────
-  const newESPNPos={};
-  document.querySelectorAll('[data-pos-name]').forEach(el=>{
-    const name=el.dataset.posName;
-    const pos=parseInt(el.dataset.posVal);
-    if(!isNaN(pos)) newESPNPos[name]=pos;
-  });
-  let espnChanged=false;
-  Object.keys(newESPNPos).forEach(name=>{
-    if(prevESPNPos[name]!==undefined && prevESPNPos[name]!==newESPNPos[name]){
-      espnArrows[name]=newESPNPos[name]<prevESPNPos[name]?'up':'down';
-      espnChanged=true;
-    }
-  });
-  prevESPNPos=newESPNPos;
-  if(espnChanged){
-    // Re-render ESPN to show arrows, then fade after 8s
-    if(window._lastPlayers) renderESPN(window._lastPlayers);
-    setTimeout(()=>{espnArrows={};if(window._lastPlayers)renderESPN(window._lastPlayers);},8000);
-  }
-
-  // ── Leaderboard position arrows ───────────────────────────────────────────
-  const newLBPos={};
-  document.querySelectorAll('[data-lb-pos-name]').forEach(el=>{
-    const name=el.dataset.lbPosName;
-    const pos=parseInt(el.dataset.lbPosVal);
-    if(!isNaN(pos)) newLBPos[name]=pos;
-  });
-  let lbChanged=false;
-  Object.keys(newLBPos).forEach(name=>{
-    if(prevLBPos[name]!==undefined && prevLBPos[name]!==newLBPos[name]){
-      lbArrows[name]=newLBPos[name]<prevLBPos[name]?'up':'down';
-      lbChanged=true;
-    }
-  });
-  prevLBPos=newLBPos;
-  if(lbChanged){
-    if(window._lastPlayers) renderLB(window._lastPlayers);
-    setTimeout(()=>{lbArrows={};if(window._lastPlayers)renderLB(window._lastPlayers);},8000);
-  }
 }
 
 function updateRefreshCounter(n){
@@ -759,20 +707,48 @@ async function fetchAndRender(){
         updateRefreshCounter(fb);
       }
     })();
-    // Snapshot scores and positions BEFORE re-rendering
-    const scoreSnap={};
-    document.querySelectorAll('[data-score-name]').forEach(el=>{ scoreSnap[el.dataset.scoreName]=parseInt(el.dataset.scoreVal); });
-    const espnPosSnap={};
-    document.querySelectorAll('[data-pos-name]').forEach(el=>{ espnPosSnap[el.dataset.posName]=parseInt(el.dataset.posVal); });
-    const lbPosSnap={};
-    document.querySelectorAll('[data-lb-pos-name]').forEach(el=>{ lbPosSnap[el.dataset.lbPosName]=parseInt(el.dataset.lbPosVal); });
-    prevScores=scoreSnap;
-    prevESPNPos=espnPosSnap;
-    prevLBPos=lbPosSnap;
+    // Snapshot old scores from DOM before re-render
+    const oldScores={};
+    document.querySelectorAll('[data-score-name]').forEach(el=>{ oldScores[el.dataset.scoreName]=parseInt(el.dataset.scoreVal); });
+    prevScores=oldScores;
+
+    // Compute ESPN position arrows from player score order
+    espnArrows={};
+    const allNew=[...players,...(players._cut||[])].sort((a,b)=>a.score-b.score);
+    allNew.forEach((p,i)=>{
+      const newPos=i+1;
+      if(prevESPNPos[p.name]!==undefined && prevESPNPos[p.name]!==newPos){
+        espnArrows[p.name]=newPos<prevESPNPos[p.name]?'up':'down';
+      }
+    });
+    // Update prevESPNPos for next refresh
+    prevESPNPos={};
+    allNew.forEach((p,i)=>{ prevESPNPos[p.name]=i+1; });
+
+    // Compute LB position arrows from team ranking
+    lbArrows={};
+    const teamsRanked=TEAMS.map(t=>({...t,total:teamTotal(players,t.picks)})).sort((a,b)=>a.total-b.total);
+    teamsRanked.forEach((t,i)=>{
+      const newPos=i+1;
+      if(prevLBPos[t.name]!==undefined && prevLBPos[t.name]!==newPos){
+        lbArrows[t.name]=newPos<prevLBPos[t.name]?'up':'down';
+      }
+    });
+    prevLBPos={};
+    teamsRanked.forEach((t,i)=>{ prevLBPos[t.name]=i+1; });
+
     renderLB(players);
     renderTeams(players);
     renderESPN(players);
     flashChanges();
+
+    // Fade arrows after 8s
+    if(Object.keys(espnArrows).length||Object.keys(lbArrows).length){
+      setTimeout(()=>{
+        espnArrows={};lbArrows={};
+        if(window._lastPlayers){renderESPN(window._lastPlayers);renderLB(window._lastPlayers);}
+      },8000);
+    }
   } else {
     dot.className='dot err';
     stat.innerHTML='⚠️ Live fetch failed · Showing last known scores';
