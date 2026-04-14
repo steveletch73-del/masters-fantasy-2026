@@ -1227,7 +1227,9 @@ function updateRefreshCounter(n){
   if(el) el.textContent=`↻ refreshed ${n} ${n===1?'time':'times'} by all visitors`;
 }
 
-const ESPN_API='https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=401703511';
+// Leaderboard used pre-event; switch to scoreboard URL once 2026 PGA event ID is known:
+// const ESPN_API='https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=XXXXXXXXX';
+const ESPN_API='https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=401703511';
 
 async function fetchAndRender(){
   const dot =document.getElementById('dot');
