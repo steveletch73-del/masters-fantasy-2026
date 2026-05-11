@@ -346,83 +346,189 @@ const ROUTER_KEY='$2a$10$ZZYpFYGdNHFN29hcbu/zfO45tnNgkJaNRV8.qwVGvqFE8DRdFIBhy';
 const BUDGET = 40;
 const MAX_PICKS = 5;
 
-const PLAYERS = [
-  {name:'Scottie Scheffler',   odds:380,   cost:20.0},
-  {name:'Rory McIlroy',        odds:650,   cost:16.5},
-  {name:'Bryson DeChambeau',   odds:1000,  cost:14.5},
-  {name:'Jon Rahm',            odds:1200,  cost:13.5},
-  {name:'Xander Schauffele',   odds:1600,  cost:12.0},
-  {name:'Tommy Fleetwood',     odds:1800,  cost:11.5},
-  {name:'Ludvig Åberg',        odds:1800,  cost:11.5},
-  {name:'Collin Morikawa',     odds:2200,  cost:11.0},
-  {name:'Cameron Young',       odds:2200,  cost:11.0},
-  {name:'Justin Thomas',       odds:2500,  cost:10.5},
-  {name:'Brooks Koepka',       odds:3300,  cost:9.5},
-  {name:'Viktor Hovland',      odds:3500,  cost:9.5},
-  {name:'Tyrrell Hatton',      odds:3500,  cost:9.5},
-  {name:'Justin Rose',         odds:3500,  cost:9.5},
-  {name:'Joaquin Niemann',     odds:3500,  cost:9.5},
-  {name:'Chris Gotterup',      odds:4000,  cost:9.0},
-  {name:'Patrick Reed',        odds:4000,  cost:9.0},
-  {name:'Hideki Matsuyama',    odds:4000,  cost:9.0},
-  {name:'Patrick Cantlay',     odds:4500,  cost:8.5},
-  {name:'Matt Fitzpatrick',    odds:4500,  cost:8.5},
-  {name:'Ben Griffin',         odds:5000,  cost:8.5},
-  {name:'Jordan Spieth',       odds:5000,  cost:8.5},
-  {name:'Shane Lowry',         odds:6000,  cost:8.0},
-  {name:'Corey Conners',       odds:6000,  cost:8.0},
-  {name:'Robert MacIntyre',    odds:6600,  cost:7.5},
-  {name:'Sungjae Im',          odds:7000,  cost:7.5},
-  {name:'Sepp Straka',         odds:7000,  cost:7.5},
-  {name:'Russell Henley',      odds:7000,  cost:7.5},
-  {name:'Wyndham Clark',       odds:8000,  cost:7.0},
-  {name:'Tony Finau',          odds:8000,  cost:7.0},
-  {name:'Si Woo Kim',          odds:8000,  cost:7.0},
-  {name:'Sam Burns',           odds:8000,  cost:7.0},
-  {name:'Maverick McNealy',    odds:8000,  cost:7.0},
-  {name:'Jason Day',           odds:8000,  cost:7.0},
-  {name:'Jake Knapp',          odds:8000,  cost:7.0},
-  {name:'J.J. Spaun',         odds:8000,  cost:7.0},
-  {name:'Harris English',      odds:8000,  cost:7.0},
-  {name:'Daniel Berger',       odds:8000,  cost:7.0},
-  {name:'Min Woo Lee',         odds:9000,  cost:7.0},
-  {name:'Max Homa',            odds:9000,  cost:7.0},
-  {name:'Cameron Smith',       odds:10000, cost:6.5},
-  {name:'Jacob Bridgeman',     odds:10000, cost:6.5},
-  {name:'David Puig',          odds:10000, cost:6.5},
-  {name:'Will Zalatoris',      odds:11000, cost:6.5},
-  {name:'Keegan Bradley',      odds:11000, cost:6.5},
-  {name:'Byeong Hun An',       odds:12000, cost:6.0},
-  {name:'Akshay Bhatia',       odds:12000, cost:6.0},
-  {name:'Adam Scott',          odds:12000, cost:6.0},
-  {name:'Dean Burmester',      odds:12000, cost:6.0},
-  {name:'Aaron Rai',           odds:13000, cost:6.0},
-  {name:'Sahith Theegala',     odds:13000, cost:6.0},
-  {name:'Dustin Johnson',      odds:13000, cost:6.0},
-  {name:'Taylor Pendrith',     odds:14000, cost:5.5},
-  {name:'Sergio García',       odds:14000, cost:5.5},
-  {name:'Ryan Gerard',         odds:14000, cost:5.5},
-  {name:'Gary Woodland',       odds:14000, cost:5.5},
-  {name:'Brian Harman',        odds:15000, cost:5.5},
-  {name:'Tom Kim',             odds:15000, cost:5.5},
-  {name:'Alex Noren',          odds:15000, cost:5.5},
-  {name:'Rasmus Højgaard',     odds:15000, cost:5.5},
-  {name:'Nicolai Højgaard',    odds:15000, cost:5.5},
-  {name:'Michael Kim',         odds:15000, cost:5.5},
-  {name:'Keith Mitchell',      odds:15000, cost:5.5},
-  {name:'J.T. Poston',        odds:15000, cost:5.5},
-  {name:'Harry Hall',          odds:15000, cost:5.5},
-  {name:'Denny McCarthy',      odds:15000, cost:5.5},
-  {name:'Rickie Fowler',       odds:17000, cost:5.0},
-  {name:'Davis Thompson',      odds:17000, cost:5.0},
-  {name:'Andrew Novak',        odds:18000, cost:5.0},
-  {name:'Bud Cauley',          odds:20000, cost:4.0},
-  {name:'Billy Horschel',      odds:20000, cost:4.0},
-  {name:'Thomas Detry',        odds:20000, cost:4.0},
-  {name:'Taylor Moore',        odds:20000, cost:4.0},
-  {name:'Stephan Jaeger',      odds:20000, cost:4.0},
-  {name:'Samuel Stevens',      odds:20000, cost:4.0},
-];
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  PLAYER LIST — PASTE UPDATED ODDS HERE BEFORE EACH EVENT        ║
+// ║  Format: player name on one line, odds number on the next        ║
+// ║  Cost is calculated automatically — do not edit below this block ║
+// ╚══════════════════════════════════════════════════════════════════╝
+const PLAYER_ODDS_RAW = `
+Scottie Scheffler
+345
+Rory McIlroy
+810
+Jon Rahm
+1300
+Cameron Young
+1500
+Bryson DeChambeau
+1700
+Xander Schauffele
+1850
+Matt Fitzpatrick
+1950
+Ludvig Aberg
+2000
+Tommy Fleetwood
+2600
+Collin Morikawa
+3600
+Brooks Koepka
+3900
+Justin Rose
+4300
+Si Woo Kim
+4700
+Russell Henley
+4700
+Justin Thomas
+4800
+Robert MacIntyre
+5300
+Viktor Hovland
+5400
+Patrick Cantlay
+5400
+Tyrrell Hatton
+5500
+Jordan Spieth
+5900
+Sam Burns
+6000
+Hideki Matsuyama
+6200
+Adam Scott
+6400
+Rickie Fowler
+7000
+Chris Gotterup
+7400
+Patrick Reed
+7400
+Min Woo Lee
+7800
+Ben Griffin
+8000
+Sepp Straka
+8400
+Shane Lowry
+9000
+Akshay Bhatia
+9400
+Maverick McNealy
+9400
+Joaquin Niemann
+9400
+Jake Knapp
+9400
+Jason Day
+9600
+Kurt Kitayama
+10000
+J.J. Spaun
+10000
+Harris English
+10500
+Nicolai Hojgaard
+11000
+Gary Woodland
+11000
+David Puig
+11000
+Michael Thorbjornsen
+12000
+Jacob Bridgeman
+12000
+Keegan Bradley
+12500
+Corey Conners
+14000
+Kristoffer Reitan
+14500
+Alex Fitzpatrick
+15000
+Sungjae Im
+15500
+Harry Hall
+15500
+Alex Noren
+16000
+Sahith Theegala
+16000
+Thomas Detry
+16500
+Marco Penge
+17000
+Wyndham Clark
+17500
+Sam Stevens
+17500
+Keith Mitchell
+17500
+Alex Smalley
+17500
+Daniel Berger
+18500
+Ryan Gerard
+20000
+Nick Taylor
+20000
+Rasmus Hojgaard
+21000
+Dustin Johnson
+21000
+Pierceson Coody
+23000
+Aaron Rai
+24000
+Jordan Smith
+24000
+Angel Ayora
+24000
+Bud Cauley
+25000
+Matt McCarty
+26000
+Jayden Schaper
+26000
+Brian Harman
+27000
+Taylor Pendrith
+27000
+Ryan Fox
+27000
+J.T. Poston
+27000
+Cameron Smith
+29000
+Ryo Hisatsune
+29000
+`;
+
+// ── Parses the raw text into [{name, odds}] — do not edit ─────────
+const PLAYER_ODDS = (function() {
+  const lines = PLAYER_ODDS_RAW.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const players = [];
+  for (let i = 0; i < lines.length - 1; i += 2) {
+    const name = lines[i];
+    const odds = parseInt(lines[i + 1], 10);
+    if (name && !isNaN(odds)) players.push({ name, odds });
+  }
+  return players;
+})();
+
+// ── Cost calculated automatically from odds ───────────────────────
+// Odds brackets → cost in £m (adjust brackets here if needed)
+function oddsToPrice(odds, isFavourite, isOutsider) {
+  if (isFavourite) return 20.0;
+  if (isOutsider) return 4.0;
+  const raw = 130 / Math.pow(odds, 0.31) - 1;
+  const rounded = Math.round(raw * 2) / 2;
+  return Math.min(19.5, Math.max(4.5, rounded));
+}
+
+const minOdds = Math.min(...PLAYER_ODDS.map(p => p.odds));
+const maxOdds = Math.max(...PLAYER_ODDS.map(p => p.odds));
+const PLAYERS = PLAYER_ODDS.map(p => ({ ...p, cost: oddsToPrice(p.odds, p.odds === minOdds, p.odds === maxOdds) }));
 
 let picks = []; // array of player names
 let searchQuery = '';
@@ -1053,7 +1159,7 @@ function renderTeams(pl){
 
 
 // Quail Hollow par 71 — update to Aronimink GC layout before 2026 tournament
-const HOLE_PARS=[4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4]; // update to Aronimink GC before 2026 tournament
+const HOLE_PARS=[4,4,4,4,3,4,4,3,5,4,4,4,4,3,4,5,3,4]; // update to Aronimink GC before 2026 tournament
 
 function buildScorecard(p){
   if(!p.holes||!p.holes.entries||!p.holes.entries.length) return '<div class="sc-no-data">No hole data available yet</div>';
