@@ -1143,10 +1143,11 @@ function renderTeams(pl){
       const todayTxt=(hasStarted&&p.today!=null)?`<span class="${scls(p.today)}">${fmt(p.today)}</span>`:'';
       const rowStyle=isCut?'background:#fdecea;':'';
       const scoreAttr=p?`data-score-name="${p.name}" data-score-val="${p.score}"`:'';
-      // Use calculated PLAYERS cost (same source as what participants picked from)
       const playerObj=PLAYERS.find(x=>norm(x.name)===norm(nm));
       const costTxt=playerObj?`£${playerObj.cost.toFixed(1)}m`:'--';
-      return `<tr style="${rowStyle}"><td class="c-pos">${p?p.pos:'--'}</td><td class="c-name">${nm}</td><td class="c-cost">${costTxt}</td><td class="c-thru">${thru}</td><td class="c-score" ${scoreAttr}>${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
+      const safeName=nm.replace(/"/g,'&quot;');
+      const nameCell=`<td class="c-name" style="cursor:pointer" onclick="toggleTeamsScorecard(this,'${safeName}')">${nm}</td>`;
+      return `<tr style="${rowStyle}" data-player-name="${safeName}"><td class="c-pos">${p?p.pos:'--'}</td>${nameCell}<td class="c-cost">${costTxt}</td><td class="c-thru">${thru}</td><td class="c-score" ${scoreAttr}>${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
     }).join('');
     h+=`<div class="tc" id="team-${i}">
       <div class="tc-hd">
@@ -1297,6 +1298,27 @@ function toggleScorecard(el){
   const name=el.dataset.playerName;
   expandedPlayer=expandedPlayer===name?null:name;
   if(window._lastPlayers) renderESPN(window._lastPlayers);
+}
+
+let expandedTeamsPlayer=null;
+function toggleTeamsScorecard(td, name){
+  const tr=td.closest('tr');
+  const table=tr.closest('table');
+  // Remove any existing expand row in this table
+  const existing=table.querySelector('.sc-expand');
+  const wasThisPlayer=expandedTeamsPlayer===name;
+  if(existing) existing.remove();
+  expandedTeamsPlayer=wasThisPlayer?null:name;
+  if(expandedTeamsPlayer){
+    const p=window._lastPlayers?window._lastPlayers.find(x=>norm(x.name)===norm(name))||
+      (window._lastPlayers._cut||[]).find(x=>norm(x.name)===norm(name)):null;
+    const sc=p?buildScorecard(p):'<div class="sc-no-data">No hole data available yet</div>';
+    const colspan=tr.children.length;
+    const expandTr=document.createElement('tr');
+    expandTr.className='sc-expand';
+    expandTr.innerHTML=`<td colspan="${colspan}"><div class="sc-wrap">${sc}</div></td>`;
+    tr.after(expandTr);
+  }
 }
 
 function showTab(id,btn){
