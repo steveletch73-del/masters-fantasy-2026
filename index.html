@@ -1037,7 +1037,7 @@ function parseESPNJson(data){
   out._r2Complete=r2Complete;
 
   // If ESPN didn't give us a cut, compute it ourselves:
-  // The PGA Championship cuts to low 70 players and ties.
+  // The PGA Championship cuts to top 70 players and ties.
   if(projCut===3 && out.length>0){
     const sorted=[...out].sort((a,b)=>a.score-b.score);
     if(sorted.length>=70){
@@ -1147,7 +1147,7 @@ function renderTeams(pl){
       const costTxt=playerObj?`£${playerObj.cost.toFixed(1)}m`:'--';
       const safeName=nm.replace(/"/g,'&quot;');
       const nameCell=`<td class="c-name" style="cursor:pointer" onclick="toggleTeamsScorecard(this,'${safeName}')">${nm}</td>`;
-      return `<tr style="${rowStyle}" data-player-name="${safeName}"><td class="c-pos">${p?p.pos:'--'}</td>${nameCell}<td class="c-cost">${costTxt}</td><td class="c-thru">${thru}</td><td class="c-score" ${scoreAttr}>${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
+      return `<tr style="${rowStyle}" data-player-name="${safeName}">${nameCell}<td class="c-cost">${costTxt}</td><td class="c-thru">${thru}</td><td class="c-score" ${scoreAttr}>${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
     }).join('');
     h+=`<div class="tc" id="team-${i}">
       <div class="tc-hd">
@@ -1218,6 +1218,26 @@ function renderESPN(pl){
     document.getElementById('espn-content').innerHTML='<div class="espn-wrap"><div class="espn-err">No data available</div></div>';
     return;
   }
+
+  // Calculate positions with tie handling across all active players
+  function calcPositions(players){
+    const pos=[];
+    players.forEach((p,i)=>{
+      if(i===0) pos.push(1);
+      else pos.push(players[i-1].score===p.score ? pos[i-1] : i+1);
+    });
+    return pos;
+  }
+  const activePos=calcPositions(active);
+  // Cut players get their own position numbering after the cut line
+  const cutPos=calcPositions(cutPlayers);
+
+  function fmtPos(players, pos, i){
+    const p=players[i];
+    const n=pos[i];
+    const tied=players.filter(x=>x.score===p.score).length>1;
+    return tied?`T${n}`:String(n);
+  }
   function fmtScore(s){ return s===0?'<span class="e">E</span>':s>0?`<span class="o">+${s}</span>`:`<span class="u">${s}</span>`; }
   function fmtToday(p){
     const started = p.thru==='F' || (p.thru!=='--' && !p.teeTime && /^\d+$/.test(p.thru));
@@ -1232,9 +1252,9 @@ function renderESPN(pl){
     if(parts.length<2) return n;
     return parts[0][0]+'. '+parts.slice(1).join(' ');
   }
-  function playerRow(p, dimmed=false){
+  function playerRow(p, dimmed=false, posTxt=''){
     const thruTxt = p.cut?'<span class="fin" style="color:var(--over)">CUT</span>':p.thru==='F'?'<span class="fin">F</span>':p.teeTime?`<span class="tee-time">${p.thru}</span>`:p.thru||'--';
-    const posNum=parseInt((p.pos||'').replace(/[^0-9]/g,''));
+    const posNum=parseInt(posTxt.replace(/[^0-9]/g,''))||9999;
     const espnArr=espnArrows[p.name];
     const espnArrHtml=espnArr?`<span class="pos-arrow" style="color:${espnArr==='up'?'#1a6b3a':'#b83232'}">${espnArr==='up'?'▲':'▼'}</span>`:'';
     const isExpanded=expandedPlayer===p.name;
@@ -1242,7 +1262,7 @@ function renderESPN(pl){
     const playerObj=PLAYERS.find(x=>norm(x.name)===norm(p.name));
     const valueTxt=playerObj?`<span style="font-size:10px;color:var(--text-soft)">£${playerObj.cost.toFixed(1)}m</span>`:'<span style="color:#ccc;font-size:10px">--</span>';
     return `<tr ${dimmed?'style="opacity:.55"':''} style="cursor:pointer" onclick="toggleScorecard(this)" data-player-name="${p.name}">
-      <td class="e-pos" data-pos-name="${p.name}" data-pos-val="${posNum||9999}">${p.pos}${espnArrHtml}</td>
+      <td class="e-pos" data-pos-name="${p.name}" data-pos-val="${posNum}">${posTxt}${espnArrHtml}</td>
       <td class="e-name">${shortName(p.name)}</td>
       <td style="text-align:center;white-space:nowrap">${valueTxt}</td>
       <td class="e-score" data-score-name="${p.name}" data-score-val="${p.score}">${fmtScore(p.score)}</td>
@@ -1252,28 +1272,25 @@ function renderESPN(pl){
   }
   let rows='';
   if(r2Complete){
-    // Cut is real — all active players made the cut, show them sorted by score
-    active.forEach(p=>{ rows+=playerRow(p,false); });
-    // Then the real cut divider with cut players below
+    active.forEach((p,i)=>{ rows+=playerRow(p,false,fmtPos(active,activePos,i)); });
     if(cutPlayers.length){
       rows+=`<tr class="cut-divider"><td colspan="6">✂ CUT / WD / DQ</td></tr>`;
-      cutPlayers.forEach(p=>{ rows+=playerRow(p,true); });
+      cutPlayers.forEach((p,i)=>{ rows+=playerRow(p,true,fmtPos(cutPlayers,cutPos,i)); });
     }
   } else {
-    // R1/R2 in progress — show projected cut banner between survivors and bubble players
     let projCutInserted=false;
-    active.forEach(p=>{
+    active.forEach((p,i)=>{
       if(!projCutInserted && p.score>PROJ_CUT){
         projCutInserted=true;
         const cutLabel=PROJ_CUT===0?'E':PROJ_CUT>0?`+${PROJ_CUT}`:`${PROJ_CUT}`;
-        rows+=`<tr class="proj-cut-divider"><td colspan="6">✂ PROJECTED CUT (${cutLabel}) — players below may miss cut</td></tr>`;
+        rows+=`<tr class="proj-cut-divider"><td colspan="6">✂ PROJECTED CUT (${cutLabel}) — top 70 and ties make the weekend</td></tr>`;
       }
       const dimmed=projCutInserted && p.score>PROJ_CUT;
-      rows+=playerRow(p,dimmed);
+      rows+=playerRow(p,dimmed,fmtPos(active,activePos,i));
     });
     if(cutPlayers.length){
       rows+=`<tr class="cut-divider"><td colspan="6">✂ CUT / WD / DQ</td></tr>`;
-      cutPlayers.forEach(p=>{ rows+=playerRow(p,true); });
+      cutPlayers.forEach((p,i)=>{ rows+=playerRow(p,true,fmtPos(cutPlayers,cutPos,i)); });
     }
   }
   const refreshCount=window._refreshCount||0;
