@@ -1262,7 +1262,15 @@ function showTab(id,btn){
 }
 function switchToTeam(i){
   showTab('teams',null);
-  setTimeout(()=>{ const el=document.getElementById('team-'+i); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); },100);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const el=document.getElementById('team-'+i);
+    if(!el) return;
+    const hd=document.querySelector('#page-pga .hd');
+    const hdH=hd?hd.offsetHeight:0;
+    const rect=el.getBoundingClientRect();
+    const target=rect.top+window.scrollY-hdH-8;
+    window.scrollTo({top:target,behavior:'smooth'});
+  }));
 }
 
 // ─── FETCH ────────────────────────────────────────────────────────────────────
