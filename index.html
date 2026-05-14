@@ -1322,7 +1322,7 @@ async function fetchAndRender(){
     dot.className='dot live';
     const now=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     stat.innerHTML=`<b>Live</b> · ${players.length} players · Updated ${now}`;
-    document.getElementById('foot').innerHTML=`Live scores from ESPN API · Updated ${now} · Refresh for latest`;
+    document.getElementById('foot').innerHTML=`Live scores from ESPN API · Updated ${now} · Refresh for latest<br><a href="champions.html" style="color:var(--gold);text-decoration:none;font-weight:500">🏆 Past Champions</a>`;
     window._lastPlayers=players;
     // Increment shared counter on jsonbin.io
     (async()=>{
@@ -1386,7 +1386,7 @@ async function fetchAndRender(){
   } else {
     dot.className='dot err';
     stat.innerHTML='⚠️ Live fetch failed · Showing last known scores';
-    document.getElementById('foot').innerHTML='Could not reach ESPN · Showing snapshot · Try refreshing later';
+    document.getElementById('foot').innerHTML='Could not reach ESPN · Showing snapshot · Try refreshing later<br><a href="champions.html" style="color:var(--gold);text-decoration:none;font-weight:500">🏆 Past Champions</a>';
     window._lastPlayers=FALLBACK;
     // Split fallback into active/_cut for proper rendering
     const fbActive=FALLBACK.filter(p=>!p.cut);
