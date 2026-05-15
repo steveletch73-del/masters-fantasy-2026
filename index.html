@@ -1146,8 +1146,8 @@ function renderTeams(pl){
       const playerObj=PLAYERS.find(x=>norm(x.name)===norm(nm));
       const costTxt=playerObj?`£${playerObj.cost.toFixed(1)}m`:'--';
       const safeName=nm.replace(/"/g,'&quot;');
-      const nameCell=`<td class="c-name" style="cursor:pointer" onclick="toggleTeamsScorecard(this,'${safeName}')">${nm}</td>`;
-      return `<tr style="${rowStyle}" data-player-name="${safeName}">${nameCell}<td class="c-cost">${costTxt}</td><td class="c-thru">${thru}</td><td class="c-score" ${scoreAttr}>${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
+      const nameCell=`<td class="c-name">${nm}</td>`;
+      return `<tr style="${rowStyle}cursor:pointer;" data-player-name="${safeName}" onclick="toggleTeamsScorecard(this,'${safeName}')">${nameCell}<td class="c-cost">${costTxt}</td><td class="c-thru">${thru}</td><td class="c-score" ${scoreAttr}>${sc}</td><td class="c-today">${todayTxt}</td></tr>`;
     }).join('');
     h+=`<div class="tc" id="team-${i}">
       <div class="tc-hd">
@@ -1318,8 +1318,7 @@ function toggleScorecard(el){
 }
 
 let expandedTeamsPlayer=null;
-function toggleTeamsScorecard(td, name){
-  const tr=td.closest('tr');
+function toggleTeamsScorecard(tr, name){
   const table=tr.closest('table');
   // Remove any existing expand row in this table
   const existing=table.querySelector('.sc-expand');
