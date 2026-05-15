@@ -885,15 +885,14 @@ function parseESPNJson(data){
       const extractTeeTime=()=>{
         const direct=c.teeTime||c.startTime||c.status?.teeTime||c.status?.startTime||null;
         if(direct) return toUKTime(direct);
-        // Search all linescores' statistics for a date string
-        for(const ls of (Array.isArray(c.linescores)?c.linescores:[])){
+        // Search linescores in REVERSE order so we get the most recent round's tee time
+        const allLS=Array.isArray(c.linescores)?[...c.linescores].reverse():[];
+        for(const ls of allLS){
           const cats=ls?.statistics?.categories||[];
           for(const cat of cats){
             for(const stat of (cat.stats||[])){
               const dv=stat.displayValue||'';
-              // Date strings contain month names or day names
               if(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.test(dv)){
-                // Replace named US timezones with their UTC offsets so Date() parses correctly
                 const normalized=dv
                   .replace(/\bPDT\b/,'GMT-0400')
                   .replace(/\bPST\b/,'GMT-0500')
