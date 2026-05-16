@@ -849,16 +849,17 @@ function parseESPNJson(data){
 
       // Position / cut status
       // Scoreboard endpoint has no per-player status object.
-      // Detect cut players by counting completed linescores:
-      // active players have 3+ rounds with real data; cut players only have 2.
+      // Active players (made cut) have 4 linescore slots (R1, R2, R3 placeholder, R4 placeholder).
+      // Cut/WD players only have 2 (R1, R2) — no R3/R4 placeholders added.
       const posRaw=c.status?.position?.displayName||c.status?.displayValue||'';
       const statusTypeName=c.status?.type?.name||'';
-      const completedLS=(Array.isArray(c.linescores)?c.linescores:[])
-        .filter(ls=>ls.displayValue&&ls.displayValue!=='-'&&(ls.value||0)>0);
+      const allLS=Array.isArray(c.linescores)?c.linescores:[];
+      const completedLS=allLS.filter(ls=>ls.displayValue&&ls.displayValue!=='-'&&(ls.value||0)>0);
+      const totalLSSlots=allLS.length;
       const isCut=/^(CUT|WD|DQ|MDF|W\/D)$/i.test(posRaw)
               ||c.status?.eliminated===true
               ||/cut|wd|dq|mdf/i.test(statusTypeName)
-              ||(compStatus?.period>=3 && completedLS.length<=2);
+              ||(compStatus?.period>=3 && totalLSSlots<=2);
       // Position from ESPN order field when no posRaw available
       const pos=isCut?(posRaw||'CUT'):(posRaw||String(c.order||'--'));
 
