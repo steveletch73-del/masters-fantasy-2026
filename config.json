@@ -1,8 +1,8 @@
 {
   "event": {
-    "name": "PGA Championship Tes",
+    "name": "PGA Championship",
     "year": 2026,
-    "subtitle": "Test Aronimink GC · May 14–17, 2026",
+    "subtitle": "Aronimink GC · May 14–17, 2026 D",
     "espnEventId": "401811947",
     "startDate": "2026-05-14",
     "status": "pre"
@@ -12,7 +12,7 @@
     "picksPerTeam": 5,
     "cutRule": 70,
     "holePars": [
-      4,
+      5,
       4,
       4,
       4,
