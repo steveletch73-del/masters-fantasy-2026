@@ -432,6 +432,10 @@ async function saveConfig(){
   try{
     const existing=await ghGet('config.json').catch(()=>null);
     const cfg=readConfigFromForm();
+    // Preserve the current status from the loaded config — don't override from jsonbin toggle
+    // (status is only changed by the event toggle or reset, not by editing config fields)
+    const currentStatus=window._loadedCfg?.event?.status||'pre';
+    cfg.event.status=currentStatus;
     // Merge in latest teams from jsonbin
     cfg.teams=Object.entries(binData.teams||{}).map(([name,t])=>({name,stars:0,picks:t.picks||[]}));
     await ghPut('config.json',JSON.stringify(cfg,null,2),'Update config.json',existing?.sha);
