@@ -234,7 +234,7 @@ const ROUTER_KEY = '$2a$10$ZZYpFYGdNHFN29hcbu/zfO45tnNgkJaNRV8.qwVGvqFE8DRdFIBhy
 
 let ghToken = '';
 let ghRepo  = '';
-let binData = {teams:{}, eventStarted:false};
+let binData = {teams:{}};
 let pendingOddsJson = null;
 let snapshotResults = null;
 let archiveDone = false;
@@ -305,7 +305,7 @@ async function loadFromBin(){
   try{
     const r=await fetch(`https://api.jsonbin.io/v3/b/${ROUTER_BIN}`,{headers:{'X-Master-Key':ROUTER_KEY}});
     const json=await r.json();
-    binData=json.record||{teams:{},eventStarted:false};
+    binData=json.record||{teams:{}};
     renderTeams(); renderEventStatus();
     document.getElementById('last-updated').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }catch(e){ showToast('Failed to load from jsonbin'); }
@@ -321,26 +321,34 @@ async function saveToBin(){
 
 // ── EVENT STATUS ──────────────────────────────────────────────────────────
 function renderEventStatus(){
-  const s=binData.eventStarted;
+  const s=window._loadedCfg?.event?.status==='live';
   document.getElementById('event-toggle').checked=s;
   document.getElementById('event-badge').textContent=s?'Live':'Pre-event';
   document.getElementById('event-badge').className='event-badge '+(s?'badge-live':'badge-pre');
 }
 
 async function toggleEventStatus(){
+  if(!requireGitHub()){
+    // Revert toggle if not connected
+    document.getElementById('event-toggle').checked=!document.getElementById('event-toggle').checked;
+    return;
+  }
   const newState=document.getElementById('event-toggle').checked;
   if(!confirm(newState?'Start event? Users go to live scoring.':'Pause event? Users return to team selection.')){
     document.getElementById('event-toggle').checked=!newState; return;
   }
   try{
-    binData.eventStarted=newState;
-    await saveToBin();
+    const {data:cfg, sha}=await ghGetJson('config.json');
+    cfg.event.status=newState?'live':'pre';
+    await ghPut('config.json',JSON.stringify(cfg,null,2),`Set event status to ${newState?'live':'pre'}`,sha);
+    if(!window._loadedCfg) window._loadedCfg={};
+    if(!window._loadedCfg.event) window._loadedCfg.event={};
+    window._loadedCfg.event.status=cfg.event.status;
     renderEventStatus();
-    showToast(newState?'🟢 Event started':'⏸ Event paused');
+    showToast(newState?'🟢 Event live — config.json updated':'⏸ Pre-event — config.json updated');
   }catch(e){
     document.getElementById('event-toggle').checked=!newState;
-    binData.eventStarted=!newState;
-    showToast('Failed to update');
+    showToast('Failed to update config: '+e.message);
   }
 }
 
@@ -413,7 +421,7 @@ function readConfigFromForm(){
       subtitle: document.getElementById('cfg-subtitle').value.trim(),
       espnEventId: document.getElementById('cfg-espnid').value.trim(),
       startDate: document.getElementById('cfg-startdate').value,
-      status: binData.eventStarted ? 'live' : 'pre'
+      status: window._loadedCfg?.event?.status||'pre'
     },
     rules:{
       budget: parseFloat(document.getElementById('cfg-budget').value)||40,
@@ -538,7 +546,7 @@ async function resetEvent(){
     const {data:current,sha}=await ghGetJson('config.json');
     const reset={...current,event:{...current.event,status:'pre'},teams:(current.teams||[]).map(t=>({name:t.name,stars:t.stars||0,picks:[]}))};
     await ghPut('config.json',JSON.stringify(reset,null,2),'Reset config.json for next event',sha);
-    binData.teams={}; binData.eventStarted=false;
+    binData.teams={};
     await saveToBin();
     renderTeams(); renderEventStatus();
     snapshotResults=null; archiveDone=false;
