@@ -342,182 +342,13 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 const ROUTER_BIN='69de381d36566621a8b0f1ca';
 const ROUTER_KEY='$2a$10$ZZYpFYGdNHFN29hcbu/zfO45tnNgkJaNRV8.qwVGvqFE8DRdFIBhy';
 
-// ── SELECT PAGE ───────────────────────────────────────────────────────────────
-const BUDGET = 40;
-const MAX_PICKS = 5;
-
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║  PLAYER LIST — PASTE UPDATED ODDS HERE BEFORE EACH EVENT        ║
-// ║  Format: player name on one line, odds number on the next        ║
-// ║  Cost is calculated automatically — do not edit below this block ║
-// ╚══════════════════════════════════════════════════════════════════╝
-const PLAYER_ODDS_RAW = `
-Scottie Scheffler
-345
-Rory McIlroy
-810
-Jon Rahm
-1300
-Cameron Young
-1500
-Bryson DeChambeau
-1700
-Xander Schauffele
-1850
-Matt Fitzpatrick
-1950
-Ludvig Aberg
-2000
-Tommy Fleetwood
-2600
-Collin Morikawa
-3600
-Brooks Koepka
-3900
-Justin Rose
-4300
-Si Woo Kim
-4700
-Russell Henley
-4700
-Justin Thomas
-4800
-Robert MacIntyre
-5300
-Viktor Hovland
-5400
-Patrick Cantlay
-5400
-Tyrrell Hatton
-5500
-Jordan Spieth
-5900
-Sam Burns
-6000
-Hideki Matsuyama
-6200
-Adam Scott
-6400
-Rickie Fowler
-7000
-Chris Gotterup
-7400
-Patrick Reed
-7400
-Min Woo Lee
-7800
-Ben Griffin
-8000
-Sepp Straka
-8400
-Shane Lowry
-9000
-Akshay Bhatia
-9400
-Maverick McNealy
-9400
-Joaquin Niemann
-9400
-Jake Knapp
-9400
-Jason Day
-9600
-Kurt Kitayama
-10000
-J.J. Spaun
-10000
-Harris English
-10500
-Nicolai Hojgaard
-11000
-Gary Woodland
-11000
-David Puig
-11000
-Michael Thorbjornsen
-12000
-Jacob Bridgeman
-12000
-Keegan Bradley
-12500
-Corey Conners
-14000
-Kristoffer Reitan
-14500
-Alex Fitzpatrick
-15000
-Sungjae Im
-15500
-Harry Hall
-15500
-Alex Noren
-16000
-Sahith Theegala
-16000
-Thomas Detry
-16500
-Marco Penge
-17000
-Wyndham Clark
-17500
-Sam Stevens
-17500
-Keith Mitchell
-17500
-Alex Smalley
-17500
-Daniel Berger
-18500
-Ryan Gerard
-20000
-Nick Taylor
-20000
-Rasmus Hojgaard
-21000
-Dustin Johnson
-21000
-Pierceson Coody
-23000
-Aaron Rai
-24000
-Jordan Smith
-24000
-Angel Ayora
-24000
-Bud Cauley
-25000
-Matt McCarty
-26000
-Jayden Schaper
-26000
-Brian Harman
-27000
-Taylor Pendrith
-27000
-Ryan Fox
-27000
-J.T. Poston
-27000
-Cameron Smith
-29000
-Ryo Hisatsune
-29000
-`;
-
-// ── Parses the raw text into [{name, odds}] — do not edit ─────────
-const PLAYER_ODDS = (function() {
-  const lines = PLAYER_ODDS_RAW.trim().split('\n').map(l => l.trim()).filter(l => l);
-  const players = [];
-  for (let i = 0; i < lines.length - 1; i += 2) {
-    const name = lines[i];
-    const odds = parseInt(lines[i + 1], 10);
-    if (name && !isNaN(odds)) players.push({ name, odds });
-  }
-  return players;
-})();
+// ── CONFIG + ODDS — loaded from JSON files ────────────────────────────────────
+let BUDGET = 40;
+let MAX_PICKS = 5;
+let TEAMS = [];
+let PLAYERS = [];
 
 // ── Cost calculated automatically from odds ───────────────────────
-// Odds brackets → cost in £m (adjust brackets here if needed)
 function oddsToPrice(odds, isFavourite, isOutsider) {
   if (isFavourite) return 20.0;
   if (isOutsider) return 4.0;
@@ -526,12 +357,56 @@ function oddsToPrice(odds, isFavourite, isOutsider) {
   return Math.min(19.5, Math.max(4.5, rounded));
 }
 
-const minOdds = Math.min(...PLAYER_ODDS.map(p => p.odds));
-const maxOdds = Math.max(...PLAYER_ODDS.map(p => p.odds));
-const PLAYERS = PLAYER_ODDS.map(p => ({ ...p, cost: oddsToPrice(p.odds, p.odds === minOdds, p.odds === maxOdds) }));
+async function loadConfigAndOdds() {
+  const [cfgRes, oddsRes] = await Promise.all([
+    fetch('config.json?_=' + Date.now()),
+    fetch('odds.json?_=' + Date.now())
+  ]);
+  const cfg = await cfgRes.json();
+  const oddsData = await oddsRes.json();
+
+  // Apply rules
+  BUDGET    = cfg.rules?.budget      ?? 40;
+  MAX_PICKS = cfg.rules?.picksPerTeam ?? 5;
+
+  // Build PLAYERS from odds
+  const minOdds = Math.min(...oddsData.map(p => p.odds));
+  const maxOdds = Math.max(...oddsData.map(p => p.odds));
+  PLAYERS.length = 0;
+  oddsData.forEach(p => PLAYERS.push({ ...p, cost: oddsToPrice(p.odds, p.odds === minOdds, p.odds === maxOdds) }));
+
+  // Teams
+  TEAMS.length = 0;
+  (cfg.teams || []).forEach(t => TEAMS.push(t));
+
+  // Update page text from config
+  const ev = cfg.event || {};
+  const espnId = ev.espnEventId || '';
+  window._ESPN_API = espnId
+    ? `https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=${espnId}`
+    : null;
+  window._CONFIG = cfg;
+
+  // Patch visible strings
+  const selTitles = document.querySelectorAll('.select-event-title');
+  selTitles.forEach(el => el.textContent = `${ev.name || ''} ${ev.year || ''}`);
+  const selSubs = document.querySelectorAll('.select-event-sub');
+  selSubs.forEach(el => el.textContent = ev.subtitle || '');
+  const pgaTitles = document.querySelectorAll('.pga-event-title');
+  pgaTitles.forEach(el => el.textContent = `${ev.name || ''} Fantasy ${ev.year || ''}`);
+  const pgaSubs = document.querySelectorAll('.pga-event-sub');
+  pgaSubs.forEach(el => el.textContent = ev.subtitle || '');
+
+  // Patch budget display
+  const budgetNums = document.getElementById('budget-nums');
+  if (budgetNums) budgetNums.textContent = `£${BUDGET.toFixed(1)}m`;
+
+  return cfg;
+}
 
 let picks = []; // array of player names
 let searchQuery = '';
+
 
 function spent() { return picks.reduce((s,n)=>{ const p=PLAYERS.find(x=>x.name===n); return s+(p?p.cost:0); },0); }
 function remaining() { return BUDGET - spent(); }
@@ -733,54 +608,6 @@ document.getElementById('player-list').addEventListener('click', e=>{
 });
 
 
-
-// ── PGA SCORING PAGE ──────────────────────────────────────────────────────────
-// ─── TEAMS ────────────────────────────────────────────────────────────────────
-// ─── TEAMS ───────────────────────────────────────────────────────────────────
-// Once teams are finalised, replace the example below with the full list from
-// the Admin page "Copy teams as JS code" button. Once real teams are here,
-// jsonbin will no longer be checked.
-const TEAMS = [
-  { name:'Saunders', stars:3, picks:['Matt Fitzpatrick','Sam Burns','Patrick Reed','Corey Conners','Tyrrell Hatton'] },
-  { name:'Frazer', stars:2, picks:['Cameron Young','Nicolai Hojgaard','Alex Fitzpatrick','Justin Thomas','Chris Gotterup'] },
-  { name:'Keith', stars:4, picks:['Brooks Koepka','Hideki Matsuyama','Gary Woodland','Collin Morikawa','Patrick Reed'] },
-  { name:'Steve', stars:5, picks:['Ludvig Aberg','Tyrrell Hatton','Viktor Hovland','Jason Day','Aaron Rai'] },
-  { name:'Fletcher', stars:4, picks:['Tommy Fleetwood','Collin Morikawa','Viktor Hovland','Matt McCarty','Rickie Fowler'] },
-  { name:'Lecky', stars:3, picks:['Tommy Fleetwood','J.J. Spaun','Si Woo Kim','Nicolai Hojgaard','Tyrrell Hatton'] },
-  { name:'Lions', stars:4, picks:['Rory McIlroy','Tommy Fleetwood','Brian Harman','Alex Fitzpatrick','Cameron Smith'] },
-  { name:'Jack', stars:4, picks:['Cameron Smith','Ryo Hisatsune','Cameron Young','Ludvig Aberg','Viktor Hovland'] },
-  { name:'Perry', stars:4, picks:['Cameron Young','Xander Schauffele','Sahith Theegala','Marco Penge','Matt McCarty'] },
-  { name:'Purkis', stars:3, picks:['Cameron Young','Tommy Fleetwood','Sungjae Im','Alex Smalley','Keegan Bradley'] },
-  { name:'Josh', stars:5, picks:['Jon Rahm','Cameron Smith','Dustin Johnson','Collin Morikawa','Viktor Hovland'] },
-];
-// ─── PLAYER COSTS (from betting odds) ────────────────────────────────────────
-const PLAYER_COSTS = {
-  'Scottie Scheffler':20.0,'Rory McIlroy':16.5,'Bryson DeChambeau':14.5,
-  'Jon Rahm':13.5,'Xander Schauffele':12.0,'Tommy Fleetwood':11.5,
-  'Ludvig Åberg':11.5,'Collin Morikawa':11.0,'Cameron Young':11.0,
-  'Justin Thomas':10.5,'Brooks Koepka':9.5,'Viktor Hovland':9.5,
-  'Tyrrell Hatton':9.5,'Justin Rose':9.5,'Joaquin Niemann':9.5,
-  'Chris Gotterup':9.0,'Patrick Reed':9.0,'Hideki Matsuyama':9.0,
-  'Patrick Cantlay':8.5,'Matt Fitzpatrick':8.5,'Ben Griffin':8.5,
-  'Jordan Spieth':8.5,'Shane Lowry':8.0,'Corey Conners':8.0,
-  'Robert MacIntyre':7.5,'Sungjae Im':7.5,'Sepp Straka':7.5,
-  'Russell Henley':7.5,'Wyndham Clark':7.0,'Tony Finau':7.0,
-  'Si Woo Kim':7.0,'Sam Burns':7.0,'Maverick McNealy':7.0,
-  'Jason Day':7.0,'Jake Knapp':7.0,'J.J. Spaun':7.0,
-  'Harris English':7.0,'Daniel Berger':7.0,'Min Woo Lee':7.0,
-  'Max Homa':7.0,'Cameron Smith':6.5,'Jacob Bridgeman':6.5,
-  'David Puig':6.5,'Will Zalatoris':6.5,'Keegan Bradley':6.5,
-  'Byeong Hun An':6.0,'Akshay Bhatia':6.0,'Adam Scott':6.0,
-  'Dean Burmester':6.0,'Aaron Rai':6.0,'Sahith Theegala':6.0,
-  'Dustin Johnson':6.0,'Taylor Pendrith':5.5,'Sergio García':5.5,
-  'Ryan Gerard':5.5,'Gary Woodland':5.5,'Brian Harman':5.5,
-  'Tom Kim':5.5,'Alex Noren':5.5,'Rasmus Højgaard':5.5,
-  'Nicolai Højgaard':5.5,'Michael Kim':5.5,'Keith Mitchell':5.5,
-  'J.T. Poston':5.5,'Harry Hall':5.5,'Denny McCarthy':5.5,
-  'Rickie Fowler':5.0,'Davis Thompson':5.0,'Andrew Novak':5.0,
-  'Bud Cauley':4.0,'Billy Horschel':4.0,'Thomas Detry':4.0,
-  'Taylor Moore':4.0,'Stephan Jaeger':4.0,'Samuel Stevens':4.0,
-};
 
 // ─── JSONBIN CONFIG ──────────────────────────────────────────────────────────
 
@@ -1387,9 +1214,9 @@ function updateRefreshCounter(n){
   if(el) el.textContent=`↻ refreshed ${n} ${n===1?'time':'times'} by all visitors`;
 }
 
-// Leaderboard used pre-event; switch to scoreboard URL once 2026 PGA event ID is known:
- const ESPN_API='https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=401811947';
-// const ESPN_API='https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=401811947';
+// ESPN API URL is set dynamically from config.json
+const ESPN_API_DEFAULT='https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=401811947';
+function getESPN_API(){ return window._ESPN_API || ESPN_API_DEFAULT; }
 
 async function fetchAndRender(){
   const dot =document.getElementById('dot');
@@ -1401,7 +1228,7 @@ async function fetchAndRender(){
 
   let players=null;
   try{
-    const r=await fetch(ESPN_API);
+    const r=await fetch(getESPN_API());
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data=await r.json();
     const parsed=parseESPNJson(data);
@@ -1492,85 +1319,43 @@ async function fetchAndRender(){
 
 
 
-// ── ROUTER ────────────────────────────────────────────────────────────────────
-const TEAMS_CACHE_KEY='pgaTeams2026';
-
-async function loadTeamsFromBin(){
-  // If real teams are hardcoded, use them — instant, no network call
-  if(TEAMS.length>1 || TEAMS[0]?.name!=='Example'){
-    console.log(`Using ${TEAMS.length} hardcoded teams`);
-    return true;
-  }
-  // Check localStorage cache first — avoids jsonbin round-trip on repeat visits
-  try{
-    const cached=localStorage.getItem(TEAMS_CACHE_KEY);
-    if(cached){
-      const parsed=JSON.parse(cached);
-      if(parsed.length>0 && parsed[0]?.name!=='Example'){
-        TEAMS.length=0; parsed.forEach(t=>TEAMS.push(t));
-        console.log(`Loaded ${TEAMS.length} teams from cache`);
-        // Refresh cache from jsonbin in background (no await — don't block load)
-        _refreshTeamsCache();
-        return true;
-      }
-    }
-  }catch(e){}
-  // No cache — fetch from jsonbin with 4s timeout
-  console.log('Fetching teams from jsonbin…');
-  try{
-    const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),4000);
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${ROUTER_BIN}/latest`,{
-      headers:{'X-Master-Key':ROUTER_KEY}, signal:ctrl.signal
-    });
-    clearTimeout(tid);
-    const json=await r.json();
-    const teams=json.record?.teams||{};
-    const entries=Object.entries(teams);
-    if(!entries.length) return false;
-    const loaded=entries.map(([name,team])=>({name,stars:0,picks:team.picks||[]}));
-    TEAMS.length=0; loaded.forEach(t=>TEAMS.push(t));
-    try{localStorage.setItem(TEAMS_CACHE_KEY,JSON.stringify(loaded));}catch(e){}
-    console.log(`Loaded ${TEAMS.length} teams from jsonbin`);
-    return true;
-  }catch(e){
-    console.warn('jsonbin timeout or error — using example team');
-    return false;
-  }
-}
-
-async function _refreshTeamsCache(){
-  try{
-    const r=await fetch(`https://api.jsonbin.io/v3/b/${ROUTER_BIN}/latest`,{headers:{'X-Master-Key':ROUTER_KEY}});
-    const json=await r.json();
-    const entries=Object.entries(json.record?.teams||{});
-    if(!entries.length) return;
-    const loaded=entries.map(([name,team])=>({name,stars:0,picks:team.picks||[]}));
-    localStorage.setItem(TEAMS_CACHE_KEY,JSON.stringify(loaded));
-  }catch(e){}
-}
-
 function showPage(page){
   document.getElementById('page-loading').style.display='none';
   if(page==='select'){
     document.getElementById('page-select').style.display='block';
     document.body.style.background='#f5f3ee';
     updateBudget(); updateSlots(); updateSubmit(); render();
-
+  }else if(page==='no-event'){
+    document.getElementById('page-loading').style.display='flex';
+    document.querySelector('.loading-title').textContent='No active event';
+    document.querySelector('.loading-sub').textContent='Check back when the next tournament begins';
+    document.querySelector('.dots').style.display='none';
   }else{
     document.getElementById('page-pga').style.display='block';
     document.body.style.background='#f4f2ed';
-    (async()=>{await loadTeamsFromBin();fetchAndRender();})();
+    (async()=>{fetchAndRender();})();
   }
 }
 
-async function route(){
-  // Real teams hardcoded = event live, go to scoring page (instant, no network)
-  // Example team only = pre-event, show team selection (instant, no network)
-  const teamsAreReal = TEAMS.length>1 || TEAMS[0]?.name!=='Example';
-  showPage(teamsAreReal ? 'pga' : 'select');
+async function init(){
+  try{
+    const cfg = await loadConfigAndOdds();
+    const status = cfg.event?.status || 'pre';
+    if(status === 'live'){
+      showPage('pga');
+    } else if(status === 'pre'){
+      showPage('select');
+    } else {
+      showPage('no-event');
+    }
+  }catch(e){
+    console.error('Failed to load config:', e);
+    // Fallback: show select page with empty player list
+    showPage('select');
+  }
 }
-route();
+init();
+
 </script>
 </body>
 </html>
