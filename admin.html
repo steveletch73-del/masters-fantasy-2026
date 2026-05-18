@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Admin · PGA Fantasy 2026</title>
+<title>Admin · PGA Fantasy</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -17,8 +17,6 @@
   --radius:12px;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-
-/* ── LOGIN ── */
 .login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
 .login-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:32px 24px;max-width:340px;width:100%;text-align:center}
 .login-title{font-family:'EB Garamond',serif;font-size:24px;color:var(--navy);margin-bottom:4px}
@@ -27,18 +25,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .login-input:focus{border-color:var(--navy-light)}
 .login-btn{width:100%;padding:12px;background:var(--navy);color:var(--gold-light);font-family:'EB Garamond',serif;font-size:18px;border:none;border-radius:8px;cursor:pointer}
 .login-err{font-size:12px;color:var(--red);margin-top:8px;display:none}
-
-/* ── HEADER ── */
 .hd{background:var(--navy);padding:16px;text-align:center}
 .hd h1{font-family:'EB Garamond',serif;font-size:20px;color:var(--gold-light)}
 .hd-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
-
-/* ── MAIN ── */
-.main{max-width:600px;margin:0 auto;padding:16px 12px 40px}
-
-/* ── EVENT TOGGLE ── */
-.event-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.event-label{font-size:15px;font-weight:600;color:var(--text)}
+.main{max-width:600px;margin:0 auto;padding:16px 12px 60px}
+.token-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px}
+.token-label{font-size:11px;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.token-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.token-status.ok{background:var(--green-bg);color:var(--green)}
+.token-status.none{background:#f0f0f0;color:var(--text-soft)}
+.token-row{display:flex;gap:8px}
+.token-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.token-input:focus{border-color:var(--navy-light)}
+.token-btn{padding:9px 16px;background:var(--navy);color:var(--gold-light);border:none;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;white-space:nowrap}
+.repo-row{display:flex;gap:8px;margin-top:8px}
+.repo-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.repo-hint{font-size:11px;color:var(--text-soft);margin-top:6px}
+.section-title{font-size:11px;font-weight:600;color:var(--text-soft);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.action-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px}
+.action-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.action-desc{font-size:12px;color:var(--text-soft);margin-bottom:12px;line-height:1.5}
+.action-btn{width:100%;padding:11px;background:var(--navy-mid);color:var(--gold-light);font-family:'EB Garamond',serif;font-size:16px;border:none;border-radius:8px;cursor:pointer;transition:background .15s}
+.action-btn:active{background:var(--navy)}
+.action-btn:disabled{opacity:.4;cursor:not-allowed}
+.event-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.event-label{font-size:14px;font-weight:600}
 .event-sub{font-size:12px;color:var(--text-soft);margin-top:2px}
 .toggle{position:relative;width:52px;height:28px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
@@ -46,237 +57,379 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .toggle-slider:before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
 input:checked + .toggle-slider{background:var(--green)}
 input:checked + .toggle-slider:before{transform:translateX(24px)}
-.event-status{font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;margin-left:8px}
+.event-status{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin-left:6px}
 .status-pre{background:#fff8e6;color:#8a6200}
 .status-live{background:var(--green-bg);color:var(--green)}
-
-/* ── TEAMS ── */
-.section-title{font-size:11px;font-weight:600;color:var(--text-soft);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
-.team-count{background:var(--navy);color:var(--gold-light);font-size:11px;padding:2px 8px;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:0}
-.teams-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.teams-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
 .team-row{border-bottom:1px solid #f0f0f0;padding:12px 16px}
 .team-row:last-child{border-bottom:none}
 .team-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.team-name{font-size:15px;font-weight:600;color:var(--text)}
-.team-meta{font-size:11px;color:var(--text-soft)}
+.team-name{font-size:14px;font-weight:600}
+.team-cost{font-family:'EB Garamond',serif;font-size:15px;color:var(--navy);font-weight:600}
 .team-picks{display:flex;flex-wrap:wrap;gap:4px}
 .pick-pill{font-size:11px;background:#f0f0f0;border-radius:4px;padding:3px 8px;color:var(--text-mid)}
-.team-cost{font-family:'EB Garamond',serif;font-size:16px;color:var(--navy);font-weight:600}
-.no-teams{padding:32px;text-align:center;color:var(--text-soft);font-size:13px}
-
-/* ── COPY CODE ── */
-.copy-btn{width:100%;padding:13px;background:var(--navy-mid);color:var(--gold-light);font-family:'EB Garamond',serif;font-size:17px;border:none;border-radius:var(--radius);cursor:pointer;margin-bottom:8px;transition:background .15s}
-.copy-btn:active{background:var(--navy)}
-.copy-hint{font-size:11px;color:var(--text-soft);text-align:center}
-
-/* ── REFRESH ── */
-.refresh-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.no-teams{padding:24px;text-align:center;color:var(--text-soft);font-size:13px}
+.file-drop{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:8px}
+.file-drop:hover,.file-drop.drag{border-color:var(--navy-light);background:#f8f8fc}
+.file-drop-text{font-size:13px;color:var(--text-soft)}
+.file-drop-text b{color:var(--text)}
+.file-drop input{display:none}
+.file-preview{font-size:11px;color:var(--green);margin-top:4px;font-weight:600;display:none}
+.step-row{display:flex;gap:8px;margin-top:8px}
+.step-btn{flex:1;padding:10px;border:none;border-radius:8px;font-family:'EB Garamond',serif;font-size:15px;cursor:pointer;transition:background .15s}
+.step-btn:disabled{opacity:.4;cursor:not-allowed}
+.step-archive{background:#1a4080;color:var(--gold-light)}
+.step-reset{background:var(--green);color:#fff}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.refresh-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .last-updated{font-size:11px;color:var(--text-soft)}
 .refresh-btn{font-size:12px;padding:5px 12px;background:var(--white);border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--text-mid);font-family:'DM Sans',sans-serif}
-.refresh-btn:active{background:#f0f0f0}
-
-/* ── TOAST ── */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div class="login" id="login-screen">
   <div class="login-card">
     <div class="login-title">Admin</div>
-    <div class="login-sub">PGA Championship Fantasy 2026</div>
+    <div class="login-sub">PGA Fantasy</div>
     <input class="login-input" id="pwd-input" type="password" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')checkPwd()"/>
     <button class="login-btn" onclick="checkPwd()">Enter →</button>
     <div class="login-err" id="login-err">Incorrect password</div>
   </div>
 </div>
 
-<!-- ADMIN UI (hidden until login) -->
 <div id="admin-ui" style="display:none">
   <header class="hd">
     <h1>PGA Fantasy · Admin</h1>
-    <div class="hd-sub">Aronimink GC · May 14–17, 2026</div>
+    <div class="hd-sub" id="hd-sub">Loading…</div>
   </header>
-
   <main class="main">
-    <!-- Event toggle -->
+
+    <!-- GITHUB TOKEN -->
+    <div class="token-card">
+      <div class="token-label">GitHub Connection <span class="token-status none" id="token-status">Not connected</span></div>
+      <div class="token-row">
+        <input class="token-input" id="token-input" type="password" placeholder="GitHub personal access token (Contents read+write)"/>
+        <button class="token-btn" onclick="connectGitHub()">Connect</button>
+      </div>
+      <div class="repo-row">
+        <input class="repo-input" id="repo-input" placeholder="owner/repo  e.g. steve/pga-fantasy"/>
+      </div>
+      <div class="repo-hint">Token is never saved — session memory only. Repo is saved in browser for convenience.</div>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="section-title">Event Status</div>
     <div class="event-card">
       <div>
-        <div class="event-label">Event status <span class="event-status status-pre" id="event-status-badge">Pre-event</span></div>
-        <div class="event-sub" id="event-sub-text">Team selection is open. Toggle to redirect users to live scoring.</div>
+        <div class="event-label">Status <span class="event-status status-pre" id="event-status-badge">Pre-event</span></div>
+        <div class="event-sub" id="event-sub-text">Toggle to switch between team selection and live scoring</div>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="event-toggle" onchange="toggleEvent()"/>
+        <input type="checkbox" id="event-toggle" onchange="toggleEventStatus()"/>
         <span class="toggle-slider"></span>
       </label>
     </div>
 
-    <!-- Teams -->
+    <hr class="divider"/>
+
+    <div class="section-title">Submitted Teams</div>
     <div class="refresh-bar">
-      <div class="section-title" style="margin-bottom:0">Submitted teams <span class="team-count" id="team-count">0</span></div>
-      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+      <div class="last-updated" id="last-updated"></div>
+      <button class="refresh-btn" onclick="loadFromBin()">↻ Refresh</button>
     </div>
-    <div class="last-updated" id="last-updated" style="margin-bottom:10px"></div>
-    <div class="teams-list" id="teams-list">
-      <div class="no-teams">Loading…</div>
+    <div class="teams-list" id="teams-list"><div class="no-teams">Loading…</div></div>
+
+    <hr class="divider"/>
+
+    <div class="section-title">Update Odds</div>
+    <div class="action-card">
+      <div class="action-title">📊 Upload odds.json</div>
+      <div class="action-desc">Upload a JSON array of <code>{"name","odds"}</code> objects to update player prices. Can be done multiple times before the event starts.</div>
+      <div class="file-drop" id="odds-drop" onclick="document.getElementById('odds-file').click()" ondragover="dragOver(event,'odds-drop')" ondragleave="dragLeave('odds-drop')" ondrop="dropFile(event,'odds')">
+        <input type="file" id="odds-file" accept=".json" onchange="fileChosen(event,'odds')"/>
+        <div class="file-drop-text"><b>Tap to choose</b> or drag odds.json here</div>
+        <div class="file-preview" id="odds-preview"></div>
+      </div>
+      <button class="action-btn" id="odds-btn" onclick="saveOdds()" disabled>Save odds.json to GitHub</button>
     </div>
 
-    <!-- Copy code -->
-    <button class="copy-btn" onclick="copyCode()">📋 Copy teams as JS code for pga2026.html</button>
-    <div class="copy-hint">Paste into the TEAMS array in pga2026.html before the event starts</div>
-  <button class="copy-btn" style="background:#6b2020;margin-top:8px" onclick="clearCache()">🗑 Clear local team cache (all browsers)</button>
-  <div class="copy-hint">Use if teams were updated after the event started</div>
+    <hr class="divider"/>
+
+    <div class="section-title">Save Config</div>
+    <div class="action-card">
+      <div class="action-title">⚙️ Save config.json</div>
+      <div class="action-desc">Writes current event details and submitted teams from jsonbin to config.json on GitHub. Run this after finalising all picks before the tournament starts.</div>
+      <button class="action-btn" id="config-btn" onclick="saveConfig()" disabled>Save config.json to GitHub</button>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="section-title">End of Event</div>
+    <div class="action-card">
+      <div class="action-title">🏁 Archive Result &amp; Reset</div>
+      <div class="action-desc">Step 1 appends the completed event to history.json — verify on champions.html before Step 2. Step 2 clears picks and resets status to pre-event, returning the game to team selection.</div>
+      <div class="step-row">
+        <button class="step-btn step-archive" id="archive-btn" onclick="archiveResult()" disabled>1 · Archive result</button>
+        <button class="step-btn step-reset" id="reset-btn" onclick="resetEvent()" disabled>2 · Reset event</button>
+      </div>
+    </div>
+
   </main>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const BIN = '69de381d36566621a8b0f1ca';
-const KEY = '$2a$10$ZZYpFYGdNHFN29hcbu/zfO45tnNgkJaNRV8.qwVGvqFE8DRdFIBhy';
-const ADMIN_PWD = 'pga2026'; // change this to your preferred password
+const ADMIN_PWD  = 'pga2026';
+const ROUTER_BIN = '69de381d36566621a8b0f1ca';
+const ROUTER_KEY = '$2a$10$ZZYpFYGdNHFN29hcbu/zfO45tnNgkJaNRV8.qwVGvqFE8DRdFIBhy';
 
-let binData = {teams:{}, eventStarted:false};
-let lastUpdated = null;
+let ghToken = '';
+let ghRepo  = '';
+let binData = { teams:{}, eventStarted:false };
+let pendingOddsJson = null;
+let archiveDone = false;
 
-function checkPwd() {
-  const val = document.getElementById('pwd-input').value;
-  if(val === ADMIN_PWD) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-ui').style.display = 'block';
-    loadData();
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+function checkPwd(){
+  if(document.getElementById('pwd-input').value === ADMIN_PWD){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('admin-ui').style.display='block';
+    const saved=localStorage.getItem('pgaAdminRepo');
+    if(saved) document.getElementById('repo-input').value=saved;
+    loadFromBin();
+    loadConfigPreview();
   } else {
-    document.getElementById('login-err').style.display = 'block';
-    document.getElementById('pwd-input').value = '';
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pwd-input').value='';
     document.getElementById('pwd-input').focus();
   }
 }
 
-async function loadData() {
-  try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN}`, {
-      headers: {'X-Master-Key': KEY}
-    });
-    const json = await r.json();
-    binData = json.record || {teams:{}, eventStarted:false};
-    lastUpdated = new Date();
-    render();
-  } catch(e) {
-    showToast('Failed to load data');
-  }
+// ── GITHUB API ────────────────────────────────────────────────────────────
+function connectGitHub(){
+  const tok=document.getElementById('token-input').value.trim();
+  const repo=document.getElementById('repo-input').value.trim();
+  if(!tok){ showToast('Paste a GitHub token first'); return; }
+  if(!repo||!repo.includes('/')){ showToast('Enter repo as owner/repo'); return; }
+  ghToken=tok; ghRepo=repo;
+  localStorage.setItem('pgaAdminRepo',repo);
+  document.getElementById('token-status').textContent='Connected';
+  document.getElementById('token-status').className='token-status ok';
+  document.getElementById('odds-btn').disabled=(pendingOddsJson===null);
+  document.getElementById('config-btn').disabled=false;
+  document.getElementById('archive-btn').disabled=false;
+  showToast('✓ GitHub connected');
 }
 
-async function toggleEvent() {
-  const newState = document.getElementById('event-toggle').checked;
-  const confirmed = newState
-    ? confirm('Start the event? Users will be redirected to the live scoring page.')
-    : confirm('End the event? Users will be redirected back to team selection.');
-  if(!confirmed) {
-    document.getElementById('event-toggle').checked = !newState;
-    return;
-  }
-  try {
-    binData.eventStarted = newState;
-    await fetch(`https://api.jsonbin.io/v3/b/${BIN}`, {
-      method: 'PUT',
-      headers: {'X-Master-Key': KEY, 'Content-Type': 'application/json', 'X-Bin-Versioning': 'false'},
-      body: JSON.stringify(binData)
-    });
-    render();
-    showToast(newState ? '🟢 Event started — users redirected to live scoring' : '⏸ Event paused — users back to team selection');
-  } catch(e) {
-    document.getElementById('event-toggle').checked = !newState;
-    binData.eventStarted = !newState;
-    showToast('Failed to update event status');
-  }
-}
+function requireGitHub(){ if(!ghToken||!ghRepo){ showToast('Connect GitHub first'); return false; } return true; }
 
-function render() {
-  // Event status
-  const started = binData.eventStarted;
-  document.getElementById('event-toggle').checked = started;
-  document.getElementById('event-status-badge').textContent = started ? 'Live' : 'Pre-event';
-  document.getElementById('event-status-badge').className = 'event-status ' + (started ? 'status-live' : 'status-pre');
-  document.getElementById('event-sub-text').textContent = started
-    ? 'Event is live. Users are being redirected to live scoring.'
-    : 'Team selection is open. Toggle to redirect users to live scoring.';
-
-  // Last updated
-  if(lastUpdated) {
-    document.getElementById('last-updated').textContent = `Last updated ${lastUpdated.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
-  }
-
-  // Teams
-  const teams = binData.teams || {};
-  const entries = Object.entries(teams).sort((a,b) => new Date(b[1].submitted) - new Date(a[1].submitted));
-  document.getElementById('team-count').textContent = entries.length;
-
-  if(!entries.length) {
-    document.getElementById('teams-list').innerHTML = '<div class="no-teams">No teams submitted yet</div>';
-    return;
-  }
-
-  let html = '';
-  entries.forEach(([name, team]) => {
-    const dt = new Date(team.submitted);
-    const dateStr = dt.toLocaleDateString('en-GB', {day:'numeric',month:'short'}) + ' ' +
-                    dt.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
-    const pills = (team.picks||[]).map(p=>`<span class="pick-pill">${p}</span>`).join('');
-    html += `<div class="team-row">
-      <div class="team-hd">
-        <div>
-          <span class="team-name">${name}</span>
-          <span class="team-meta"> · submitted ${dateStr}</span>
-        </div>
-        <div class="team-cost">£${(team.spent||0).toFixed(1)}m</div>
-      </div>
-      <div class="team-picks">${pills}</div>
-    </div>`;
+async function ghGet(path){
+  const r=await fetch(`https://api.github.com/repos/${ghRepo}/contents/${path}`,{
+    headers:{Authorization:`Bearer ${ghToken}`,Accept:'application/vnd.github.v3+json'}
   });
-  document.getElementById('teams-list').innerHTML = html;
+  if(!r.ok) throw new Error(`GET ${path}: ${r.status}`);
+  return r.json();
 }
 
-function copyCode() {
-  const teams = binData.teams || {};
-  const entries = Object.entries(teams);
-  if(!entries.length) { showToast('No teams to copy'); return; }
-
-  // Generate TEAMS array JS code matching pga2026.html format
-  // Use latest submission per name (already stored as latest)
-  // Stars default to 0 — can be set manually
-  const lines = entries.map(([name, team]) => {
-    const picks = (team.picks||[]).map(p=>`'${p}'`).join(',');
-    return `  { name:'${name}', stars:0, picks:[${picks}] },`;
+async function ghPut(path,content,message,sha){
+  const body={message,content:btoa(unescape(encodeURIComponent(content)))};
+  if(sha) body.sha=sha;
+  const r=await fetch(`https://api.github.com/repos/${ghRepo}/contents/${path}`,{
+    method:'PUT',
+    headers:{Authorization:`Bearer ${ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
+    body:JSON.stringify(body)
   });
+  if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.message||`PUT ${path}: ${r.status}`); }
+  return r.json();
+}
 
-  const code = `const TEAMS = [\n${lines.join('\n')}\n];`;
-  navigator.clipboard.writeText(code).then(()=>{
-    showToast(`✓ Copied ${entries.length} teams to clipboard`);
-  }).catch(()=>{
-    // Fallback: show in prompt
-    prompt('Copy this code:', code);
+async function ghGetJson(path){
+  const file=await ghGet(path);
+  const text=decodeURIComponent(escape(atob(file.content.replace(/\n/g,''))));
+  return {data:JSON.parse(text),sha:file.sha};
+}
+
+// ── JSONBIN ───────────────────────────────────────────────────────────────
+async function loadFromBin(){
+  try{
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${ROUTER_BIN}`,{headers:{'X-Master-Key':ROUTER_KEY}});
+    const json=await r.json();
+    binData=json.record||{teams:{},eventStarted:false};
+    renderTeams(); renderEventStatus();
+    document.getElementById('last-updated').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }catch(e){ showToast('Failed to load from jsonbin'); }
+}
+
+async function saveToBin(){
+  await fetch(`https://api.jsonbin.io/v3/b/${ROUTER_BIN}`,{
+    method:'PUT',
+    headers:{'X-Master-Key':ROUTER_KEY,'Content-Type':'application/json','X-Bin-Versioning':'false'},
+    body:JSON.stringify(binData)
   });
 }
 
-function clearCache() {
-  if(!confirm('Clear local cache on THIS device? Teams and event status will reload from jsonbin on next visit.')) return;
-  localStorage.removeItem('pgaTeams2026');
-  localStorage.removeItem('pgaEventStarted2026');
-  showToast('✓ Cache cleared — reload the scoring page to re-fetch from jsonbin');
+// ── EVENT STATUS ──────────────────────────────────────────────────────────
+function renderEventStatus(){
+  const s=binData.eventStarted;
+  document.getElementById('event-toggle').checked=s;
+  document.getElementById('event-status-badge').textContent=s?'Live':'Pre-event';
+  document.getElementById('event-status-badge').className='event-status '+(s?'status-live':'status-pre');
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show';
-  clearTimeout(t._t);
-  t._t = setTimeout(()=>t.className='toast', 2800);
+async function toggleEventStatus(){
+  const newState=document.getElementById('event-toggle').checked;
+  if(!confirm(newState?'Start event? Users redirected to live scoring.':'Pause event? Users return to team selection.')){
+    document.getElementById('event-toggle').checked=!newState; return;
+  }
+  try{
+    binData.eventStarted=newState;
+    await saveToBin();
+    renderEventStatus();
+    showToast(newState?'🟢 Event started':'⏸ Event paused');
+  }catch(e){
+    document.getElementById('event-toggle').checked=!newState;
+    binData.eventStarted=!newState;
+    showToast('Failed to update');
+  }
 }
 
-// Auto-refresh every 30s
-setInterval(loadData, 30000);
+// ── TEAMS ─────────────────────────────────────────────────────────────────
+function renderTeams(){
+  const entries=Object.entries(binData.teams||{}).sort((a,b)=>new Date(b[1].submitted)-new Date(a[1].submitted));
+  document.getElementById('teams-list').innerHTML=entries.length
+    ? entries.map(([name,t])=>{
+        const dt=new Date(t.submitted);
+        const ds=dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        return `<div class="team-row">
+          <div class="team-hd"><div><span class="team-name">${name}</span><span style="font-size:11px;color:var(--text-soft)"> · ${ds}</span></div><div class="team-cost">£${(t.spent||0).toFixed(1)}m</div></div>
+          <div class="team-picks">${(t.picks||[]).map(p=>`<span class="pick-pill">${p}</span>`).join('')}</div>
+        </div>`;
+      }).join('')
+    : '<div class="no-teams">No teams yet</div>';
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────────────────
+function dragOver(e,id){e.preventDefault();document.getElementById(id).classList.add('drag');}
+function dragLeave(id){document.getElementById(id).classList.remove('drag');}
+function dropFile(e,type){e.preventDefault();dragLeave(type+'-drop');processFile(e.dataTransfer.files[0],type);}
+function fileChosen(e,type){processFile(e.target.files[0],type);}
+
+function processFile(file,type){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      if(!Array.isArray(parsed)) throw new Error('Expected a JSON array');
+      if(type==='odds'){
+        pendingOddsJson=parsed;
+        const prev=document.getElementById('odds-preview');
+        prev.textContent=`✓ ${parsed.length} players loaded`;
+        prev.style.display='block';
+        document.getElementById('odds-btn').disabled=!ghToken;
+      }
+      showToast(`✓ ${file.name} — ${parsed.length} entries`);
+    }catch(err){ showToast('Invalid JSON: '+err.message); }
+  };
+  reader.readAsText(file);
+}
+
+// ── SAVE ODDS ────────────────────────────────────────────────────────────
+async function saveOdds(){
+  if(!requireGitHub()||!pendingOddsJson){showToast('Load an odds file first');return;}
+  const btn=document.getElementById('odds-btn');
+  btn.disabled=true; btn.textContent='Saving…';
+  try{
+    const existing=await ghGet('odds.json').catch(()=>null);
+    await ghPut('odds.json',JSON.stringify(pendingOddsJson,null,2),'Update odds.json',existing?.sha);
+    showToast('✓ odds.json saved to GitHub');
+    pendingOddsJson=null;
+    document.getElementById('odds-preview').style.display='none';
+  }catch(e){ showToast('Failed: '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='Save odds.json to GitHub'; }
+}
+
+// ── SAVE CONFIG ──────────────────────────────────────────────────────────
+async function saveConfig(){
+  if(!requireGitHub()) return;
+  const btn=document.getElementById('config-btn');
+  btn.disabled=true; btn.textContent='Saving…';
+  try{
+    const {data:current,sha}=await ghGetJson('config.json');
+    const teams=Object.entries(binData.teams||{}).map(([name,t])=>({name,stars:0,picks:t.picks||[]}));
+    const updated={...current,event:{...current.event,status:binData.eventStarted?'live':'pre'},teams};
+    await ghPut('config.json',JSON.stringify(updated,null,2),'Update config.json with latest teams',sha);
+    showToast(`✓ config.json saved — ${teams.length} teams`);
+  }catch(e){ showToast('Failed: '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='Save config.json to GitHub'; }
+}
+
+// ── ARCHIVE & RESET ───────────────────────────────────────────────────────
+async function archiveResult(){
+  if(!requireGitHub()) return;
+  const eventName=prompt('Event name (e.g. "PGA Championship"):');
+  if(!eventName) return;
+  const yearStr=prompt('Year (e.g. 2026):');
+  if(!yearStr) return;
+  const year=parseInt(yearStr,10);
+  if(isNaN(year)){ showToast('Invalid year'); return; }
+  const scoresRaw=prompt('Paste final results as JSON:\n[{"name":"Steve","score":-7,"picks":[{"golfer":"Rory McIlroy","score":-7}]},...]');
+  if(!scoresRaw) return;
+  let results;
+  try{ results=JSON.parse(scoresRaw); }
+  catch(e){ showToast('Invalid JSON'); return; }
+
+  const btn=document.getElementById('archive-btn');
+  btn.disabled=true; btn.textContent='Archiving…';
+  try{
+    const {data:history,sha}=await ghGetJson('history.json');
+    const updated=[{event:eventName,year,results},...history];
+    await ghPut('history.json',JSON.stringify(updated,null,2),`Archive ${eventName} ${year}`,sha);
+    archiveDone=true;
+    document.getElementById('reset-btn').disabled=false;
+    showToast(`✓ ${eventName} ${year} archived`);
+  }catch(e){ showToast('Archive failed: '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='1 · Archive result'; }
+}
+
+async function resetEvent(){
+  if(!requireGitHub()||!archiveDone){ showToast('Archive first'); return; }
+  if(!confirm('Reset config.json? Clears all picks and sets status to pre-event.')) return;
+  const btn=document.getElementById('reset-btn');
+  btn.disabled=true; btn.textContent='Resetting…';
+  try{
+    const {data:current,sha}=await ghGetJson('config.json');
+    const reset={...current,event:{...current.event,status:'pre'},teams:(current.teams||[]).map(t=>({name:t.name,stars:t.stars||0,picks:[]}))};
+    await ghPut('config.json',JSON.stringify(reset,null,2),'Reset config.json for next event',sha);
+    binData.teams={}; binData.eventStarted=false;
+    await saveToBin();
+    renderTeams(); renderEventStatus();
+    archiveDone=false;
+    showToast('✓ Reset — back to team selection');
+  }catch(e){ showToast('Reset failed: '+e.message); btn.disabled=false; btn.textContent='2 · Reset event'; }
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',3200);
+}
+
+async function loadConfigPreview(){
+  try{
+    const r=await fetch('config.json?_='+Date.now());
+    const cfg=await r.json();
+    document.getElementById('hd-sub').textContent=`${cfg.event?.name||''} ${cfg.event?.year||''}`;
+  }catch(e){}
+}
+
+setInterval(loadFromBin,30000);
 </script>
 </body>
 </html>
