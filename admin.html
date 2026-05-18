@@ -29,7 +29,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .hd h1{font-family:'EB Garamond',serif;font-size:20px;color:var(--gold-light)}
 .hd-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
 .main{max-width:600px;margin:0 auto;padding:16px 12px 60px}
-.token-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px}
+/* TOKEN */
+.token-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
 .token-label{font-size:11px;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .token-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
 .token-status.ok{background:var(--green-bg);color:var(--green)}
@@ -37,54 +38,74 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .token-row{display:flex;gap:8px}
 .token-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
 .token-input:focus{border-color:var(--navy-light)}
-.token-btn{padding:9px 16px;background:var(--navy);color:var(--gold-light);border:none;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;white-space:nowrap}
+.token-btn{padding:9px 16px;background:var(--navy);color:var(--gold-light);border:none;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer}
 .repo-row{display:flex;gap:8px;margin-top:8px}
 .repo-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
-.repo-hint{font-size:11px;color:var(--text-soft);margin-top:6px}
-.section-title{font-size:11px;font-weight:600;color:var(--text-soft);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
-.action-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px}
-.action-title{font-size:14px;font-weight:600;margin-bottom:4px}
-.action-desc{font-size:12px;color:var(--text-soft);margin-bottom:12px;line-height:1.5}
-.action-btn{width:100%;padding:11px;background:var(--navy-mid);color:var(--gold-light);font-family:'EB Garamond',serif;font-size:16px;border:none;border-radius:8px;cursor:pointer;transition:background .15s}
+.repo-hint{font-size:11px;color:var(--text-soft);margin-top:5px}
+/* SECTIONS */
+.sec-title{font-size:11px;font-weight:600;color:var(--text-soft);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--text-soft);margin-bottom:12px;line-height:1.5}
+.action-btn{width:100%;padding:11px;background:var(--navy-mid);color:var(--gold-light);font-family:'EB Garamond',serif;font-size:16px;border:none;border-radius:8px;cursor:pointer;transition:background .15s;margin-top:4px}
 .action-btn:active{background:var(--navy)}
 .action-btn:disabled{opacity:.4;cursor:not-allowed}
-.event-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.event-label{font-size:14px;font-weight:600}
-.event-sub{font-size:12px;color:var(--text-soft);margin-top:2px}
-.toggle{position:relative;width:52px;height:28px;flex-shrink:0}
+.action-btn.green{background:var(--green)}
+/* FORM FIELDS */
+.field-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.field-label{font-size:12px;font-weight:500;color:var(--text-mid);min-width:90px;flex-shrink:0}
+.field-input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--white)}
+.field-input:focus{border-color:var(--navy-light)}
+.field-input.sm{width:70px;flex:none}
+/* HOLE PARS GRID */
+.pars-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:8px}
+.par-cell{display:flex;flex-direction:column;align-items:center;gap:2px}
+.par-hole-num{font-size:9px;color:var(--text-soft);font-weight:600}
+.par-input{width:100%;padding:5px 0;border:1px solid var(--border);border-radius:4px;font-size:13px;font-weight:600;text-align:center;font-family:'DM Sans',sans-serif;outline:none;background:var(--white)}
+.par-input:focus{border-color:var(--navy-light)}
+.pars-total{font-size:12px;color:var(--text-soft);text-align:right;margin-bottom:8px}
+/* EVENT STATUS */
+.event-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.event-label{font-size:13px;font-weight:500}
+.toggle{position:relative;width:48px;height:26px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:#ddd;border-radius:14px;cursor:pointer;transition:.3s}
-.toggle-slider:before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-slider{position:absolute;inset:0;background:#ddd;border-radius:13px;cursor:pointer;transition:.25s}
+.toggle-slider:before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s}
 input:checked + .toggle-slider{background:var(--green)}
-input:checked + .toggle-slider:before{transform:translateX(24px)}
-.event-status{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin-left:6px}
-.status-pre{background:#fff8e6;color:#8a6200}
-.status-live{background:var(--green-bg);color:var(--green)}
+input:checked + .toggle-slider:before{transform:translateX(22px)}
+.event-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:6px}
+.badge-pre{background:#fff8e6;color:#8a6200}
+.badge-live{background:var(--green-bg);color:var(--green)}
+/* TEAMS */
 .teams-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
-.team-row{border-bottom:1px solid #f0f0f0;padding:12px 16px}
+.team-row{border-bottom:1px solid #f0f0f0;padding:10px 14px}
 .team-row:last-child{border-bottom:none}
-.team-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.team-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
 .team-name{font-size:14px;font-weight:600}
 .team-cost{font-family:'EB Garamond',serif;font-size:15px;color:var(--navy);font-weight:600}
 .team-picks{display:flex;flex-wrap:wrap;gap:4px}
-.pick-pill{font-size:11px;background:#f0f0f0;border-radius:4px;padding:3px 8px;color:var(--text-mid)}
-.no-teams{padding:24px;text-align:center;color:var(--text-soft);font-size:13px}
-.file-drop{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:8px}
+.pick-pill{font-size:11px;background:#f0f0f0;border-radius:4px;padding:2px 7px;color:var(--text-mid)}
+.no-teams{padding:22px;text-align:center;color:var(--text-soft);font-size:13px}
+/* FILE DROP */
+.file-drop{border:2px dashed var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:8px}
 .file-drop:hover,.file-drop.drag{border-color:var(--navy-light);background:#f8f8fc}
 .file-drop-text{font-size:13px;color:var(--text-soft)}
-.file-drop-text b{color:var(--text)}
 .file-drop input{display:none}
 .file-preview{font-size:11px;color:var(--green);margin-top:4px;font-weight:600;display:none}
+/* STEP BUTTONS */
 .step-row{display:flex;gap:8px;margin-top:8px}
-.step-btn{flex:1;padding:10px;border:none;border-radius:8px;font-family:'EB Garamond',serif;font-size:15px;cursor:pointer;transition:background .15s}
+.step-btn{flex:1;padding:10px;border:none;border-radius:8px;font-family:'EB Garamond',serif;font-size:15px;cursor:pointer}
 .step-btn:disabled{opacity:.4;cursor:not-allowed}
 .step-archive{background:#1a4080;color:var(--gold-light)}
 .step-reset{background:var(--green);color:#fff}
-.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+/* REFRESH */
 .refresh-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .last-updated{font-size:11px;color:var(--text-soft)}
-.refresh-btn{font-size:12px;padding:5px 12px;background:var(--white);border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--text-mid);font-family:'DM Sans',sans-serif}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;max-width:90vw;text-align:center}
+.refresh-btn{font-size:12px;padding:4px 11px;background:var(--white);border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--text-mid);font-family:'DM Sans',sans-serif}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;max-width:92vw;text-align:center;white-space:pre-line}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
@@ -117,38 +138,62 @@ input:checked + .toggle-slider:before{transform:translateX(24px)}
       <div class="repo-row">
         <input class="repo-input" id="repo-input" placeholder="owner/repo  e.g. steve/pga-fantasy"/>
       </div>
-      <div class="repo-hint">Token is never saved — session memory only. Repo is saved in browser for convenience.</div>
+      <div class="repo-hint">Token never saved — session only. Repo saved in browser for convenience.</div>
     </div>
 
     <hr class="divider"/>
 
-    <div class="section-title">Event Status</div>
-    <div class="event-card">
-      <div>
-        <div class="event-label">Status <span class="event-status status-pre" id="event-status-badge">Pre-event</span></div>
-        <div class="event-sub" id="event-sub-text">Toggle to switch between team selection and live scoring</div>
+    <!-- EVENT STATUS + SUBMITTED TEAMS -->
+    <div class="sec-title">Event Status</div>
+    <div class="card">
+      <div class="event-row">
+        <div>
+          <span class="event-label">Status</span>
+          <span class="event-badge badge-pre" id="event-badge">Pre-event</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="event-toggle" onchange="toggleEventStatus()"/>
+          <span class="toggle-slider"></span>
+        </label>
       </div>
-      <label class="toggle">
-        <input type="checkbox" id="event-toggle" onchange="toggleEventStatus()"/>
-        <span class="toggle-slider"></span>
-      </label>
+      <div class="refresh-bar">
+        <div class="last-updated" id="last-updated"></div>
+        <button class="refresh-btn" onclick="loadFromBin()">↻ Refresh teams</button>
+      </div>
+      <div class="teams-list" id="teams-list"><div class="no-teams">Loading…</div></div>
     </div>
 
     <hr class="divider"/>
 
-    <div class="section-title">Submitted Teams</div>
-    <div class="refresh-bar">
-      <div class="last-updated" id="last-updated"></div>
-      <button class="refresh-btn" onclick="loadFromBin()">↻ Refresh</button>
+    <!-- EDIT CONFIG -->
+    <div class="sec-title">Edit Config</div>
+    <div class="card">
+      <div class="card-title">⚙️ Event Details</div>
+      <div class="card-desc">Update for next event. Saves to config.json on GitHub.</div>
+
+      <div class="field-row"><span class="field-label">Event name</span><input class="field-input" id="cfg-name" placeholder="PGA Championship"/></div>
+      <div class="field-row"><span class="field-label">Year</span><input class="field-input sm" id="cfg-year" placeholder="2026" type="number"/></div>
+      <div class="field-row"><span class="field-label">Subtitle</span><input class="field-input" id="cfg-subtitle" placeholder="Venue · Dates"/></div>
+      <div class="field-row"><span class="field-label">ESPN Event ID</span><input class="field-input" id="cfg-espnid" placeholder="401811947"/></div>
+      <div class="field-row"><span class="field-label">Start date</span><input class="field-input sm" id="cfg-startdate" type="date"/></div>
+      <div class="field-row"><span class="field-label">Budget (£m)</span><input class="field-input sm" id="cfg-budget" type="number" step="0.5"/></div>
+      <div class="field-row"><span class="field-label">Picks per team</span><input class="field-input sm" id="cfg-picks" type="number"/></div>
+      <div class="field-row"><span class="field-label">Cut rule (top N)</span><input class="field-input sm" id="cfg-cut" type="number"/></div>
+
+      <div class="sec-title" style="margin-top:12px">Hole Pars</div>
+      <div class="pars-grid" id="pars-grid"></div>
+      <div class="pars-total" id="pars-total">Total par: –</div>
+
+      <button class="action-btn" id="config-btn" onclick="saveConfig()" disabled>Save config.json to GitHub</button>
     </div>
-    <div class="teams-list" id="teams-list"><div class="no-teams">Loading…</div></div>
 
     <hr class="divider"/>
 
-    <div class="section-title">Update Odds</div>
-    <div class="action-card">
-      <div class="action-title">📊 Upload odds.json</div>
-      <div class="action-desc">Upload a JSON array of <code>{"name","odds"}</code> objects to update player prices. Can be done multiple times before the event starts.</div>
+    <!-- UPDATE ODDS -->
+    <div class="sec-title">Update Odds</div>
+    <div class="card">
+      <div class="card-title">📊 Upload odds.json</div>
+      <div class="card-desc">JSON array of <code>{"name","odds"}</code> objects. Can be updated multiple times before the event.</div>
       <div class="file-drop" id="odds-drop" onclick="document.getElementById('odds-file').click()" ondragover="dragOver(event,'odds-drop')" ondragleave="dragLeave('odds-drop')" ondrop="dropFile(event,'odds')">
         <input type="file" id="odds-file" accept=".json" onchange="fileChosen(event,'odds')"/>
         <div class="file-drop-text"><b>Tap to choose</b> or drag odds.json here</div>
@@ -159,19 +204,18 @@ input:checked + .toggle-slider:before{transform:translateX(24px)}
 
     <hr class="divider"/>
 
-    <div class="section-title">Save Config</div>
-    <div class="action-card">
-      <div class="action-title">⚙️ Save config.json</div>
-      <div class="action-desc">Writes current event details and submitted teams from jsonbin to config.json on GitHub. Run this after finalising all picks before the tournament starts.</div>
-      <button class="action-btn" id="config-btn" onclick="saveConfig()" disabled>Save config.json to GitHub</button>
+    <!-- END OF EVENT -->
+    <div class="sec-title">End of Event</div>
+    <div class="card">
+      <div class="card-title">📸 Snapshot Results</div>
+      <div class="card-desc">Opens index.html briefly to pull live scores and compute final results in memory — no paste needed. Click this once ESPN shows final scores, then archive.</div>
+      <button class="action-btn" id="snapshot-btn" onclick="doSnapshot()">Snapshot final results from index</button>
+      <div id="snapshot-status" style="font-size:11px;color:var(--text-soft);margin-top:6px;min-height:16px"></div>
     </div>
 
-    <hr class="divider"/>
-
-    <div class="section-title">End of Event</div>
-    <div class="action-card">
-      <div class="action-title">🏁 Archive Result &amp; Reset</div>
-      <div class="action-desc">Step 1 appends the completed event to history.json — verify on champions.html before Step 2. Step 2 clears picks and resets status to pre-event, returning the game to team selection.</div>
+    <div class="card">
+      <div class="card-title">🏁 Archive Result &amp; Reset</div>
+      <div class="card-desc">Step 1 appends the event to history.json. Verify on champions.html first, then Step 2 clears picks and resets to pre-event.</div>
       <div class="step-row">
         <button class="step-btn step-archive" id="archive-btn" onclick="archiveResult()" disabled>1 · Archive result</button>
         <button class="step-btn step-reset" id="reset-btn" onclick="resetEvent()" disabled>2 · Reset event</button>
@@ -190,8 +234,9 @@ const ROUTER_KEY = '$2a$10$ZZYpFYGdNHFN29hcbu/zfO45tnNgkJaNRV8.qwVGvqFE8DRdFIBhy
 
 let ghToken = '';
 let ghRepo  = '';
-let binData = { teams:{}, eventStarted:false };
+let binData = {teams:{}, eventStarted:false};
 let pendingOddsJson = null;
+let snapshotResults = null;
 let archiveDone = false;
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────
@@ -202,7 +247,8 @@ function checkPwd(){
     const saved=localStorage.getItem('pgaAdminRepo');
     if(saved) document.getElementById('repo-input').value=saved;
     loadFromBin();
-    loadConfigPreview();
+    loadConfigIntoForm();
+    buildParsGrid();
   } else {
     document.getElementById('login-err').style.display='block';
     document.getElementById('pwd-input').value='';
@@ -210,7 +256,7 @@ function checkPwd(){
   }
 }
 
-// ── GITHUB API ────────────────────────────────────────────────────────────
+// ── GITHUB ────────────────────────────────────────────────────────────────
 function connectGitHub(){
   const tok=document.getElementById('token-input').value.trim();
   const repo=document.getElementById('repo-input').value.trim();
@@ -220,10 +266,10 @@ function connectGitHub(){
   localStorage.setItem('pgaAdminRepo',repo);
   document.getElementById('token-status').textContent='Connected';
   document.getElementById('token-status').className='token-status ok';
-  document.getElementById('odds-btn').disabled=(pendingOddsJson===null);
   document.getElementById('config-btn').disabled=false;
   document.getElementById('archive-btn').disabled=false;
-  showToast('✓ GitHub connected');
+  if(pendingOddsJson) document.getElementById('odds-btn').disabled=false;
+  showToast('✓ GitHub connected — token in memory only');
 }
 
 function requireGitHub(){ if(!ghToken||!ghRepo){ showToast('Connect GitHub first'); return false; } return true; }
@@ -251,7 +297,7 @@ async function ghPut(path,content,message,sha){
 async function ghGetJson(path){
   const file=await ghGet(path);
   const text=decodeURIComponent(escape(atob(file.content.replace(/\n/g,''))));
-  return {data:JSON.parse(text),sha:file.sha};
+  return {data:JSON.parse(text), sha:file.sha};
 }
 
 // ── JSONBIN ───────────────────────────────────────────────────────────────
@@ -277,13 +323,13 @@ async function saveToBin(){
 function renderEventStatus(){
   const s=binData.eventStarted;
   document.getElementById('event-toggle').checked=s;
-  document.getElementById('event-status-badge').textContent=s?'Live':'Pre-event';
-  document.getElementById('event-status-badge').className='event-status '+(s?'status-live':'status-pre');
+  document.getElementById('event-badge').textContent=s?'Live':'Pre-event';
+  document.getElementById('event-badge').className='event-badge '+(s?'badge-live':'badge-pre');
 }
 
 async function toggleEventStatus(){
   const newState=document.getElementById('event-toggle').checked;
-  if(!confirm(newState?'Start event? Users redirected to live scoring.':'Pause event? Users return to team selection.')){
+  if(!confirm(newState?'Start event? Users go to live scoring.':'Pause event? Users return to team selection.')){
     document.getElementById('event-toggle').checked=!newState; return;
   }
   try{
@@ -313,7 +359,89 @@ function renderTeams(){
     : '<div class="no-teams">No teams yet</div>';
 }
 
-// ── FILE HANDLING ─────────────────────────────────────────────────────────
+// ── CONFIG FORM ───────────────────────────────────────────────────────────
+async function loadConfigIntoForm(){
+  try{
+    const r=await fetch('config.json?_='+Date.now());
+    const cfg=await r.json();
+    window._loadedCfg=cfg;
+    document.getElementById('cfg-name').value=cfg.event?.name||'';
+    document.getElementById('cfg-year').value=cfg.event?.year||'';
+    document.getElementById('cfg-subtitle').value=cfg.event?.subtitle||'';
+    document.getElementById('cfg-espnid').value=cfg.event?.espnEventId||'';
+    document.getElementById('cfg-startdate').value=cfg.event?.startDate||'';
+    document.getElementById('cfg-budget').value=cfg.rules?.budget??40;
+    document.getElementById('cfg-picks').value=cfg.rules?.picksPerTeam??5;
+    document.getElementById('cfg-cut').value=cfg.rules?.cutRule??70;
+    const pars=cfg.rules?.holePars||Array(18).fill(4);
+    pars.forEach((p,i)=>{
+      const el=document.getElementById('par-'+i);
+      if(el) el.value=p;
+    });
+    updateParsTotal();
+    document.getElementById('hd-sub').textContent=`${cfg.event?.name||''} ${cfg.event?.year||''}`;
+  }catch(e){ console.warn('Could not load config.json for form',e); }
+}
+
+function buildParsGrid(){
+  const grid=document.getElementById('pars-grid');
+  grid.innerHTML='';
+  for(let i=0;i<18;i++){
+    const cell=document.createElement('div');
+    cell.className='par-cell';
+    cell.innerHTML=`<span class="par-hole-num">${i+1}</span><input class="par-input" id="par-${i}" type="number" min="3" max="6" value="4" oninput="updateParsTotal()"/>`;
+    grid.appendChild(cell);
+  }
+}
+
+function updateParsTotal(){
+  let total=0;
+  for(let i=0;i<18;i++){
+    const v=parseInt(document.getElementById('par-'+i)?.value)||0;
+    total+=v;
+  }
+  document.getElementById('pars-total').textContent=`Total par: ${total}`;
+}
+
+function readConfigFromForm(){
+  const pars=[];
+  for(let i=0;i<18;i++) pars.push(parseInt(document.getElementById('par-'+i)?.value)||4);
+  return {
+    event:{
+      name: document.getElementById('cfg-name').value.trim(),
+      year: parseInt(document.getElementById('cfg-year').value)||new Date().getFullYear(),
+      subtitle: document.getElementById('cfg-subtitle').value.trim(),
+      espnEventId: document.getElementById('cfg-espnid').value.trim(),
+      startDate: document.getElementById('cfg-startdate').value,
+      status: binData.eventStarted ? 'live' : 'pre'
+    },
+    rules:{
+      budget: parseFloat(document.getElementById('cfg-budget').value)||40,
+      picksPerTeam: parseInt(document.getElementById('cfg-picks').value)||5,
+      cutRule: parseInt(document.getElementById('cfg-cut').value)||70,
+      holePars: pars
+    },
+    teams: (window._loadedCfg?.teams||[])
+  };
+}
+
+async function saveConfig(){
+  if(!requireGitHub()) return;
+  const btn=document.getElementById('config-btn');
+  btn.disabled=true; btn.textContent='Saving…';
+  try{
+    const existing=await ghGet('config.json').catch(()=>null);
+    const cfg=readConfigFromForm();
+    // Merge in latest teams from jsonbin
+    cfg.teams=Object.entries(binData.teams||{}).map(([name,t])=>({name,stars:0,picks:t.picks||[]}));
+    await ghPut('config.json',JSON.stringify(cfg,null,2),'Update config.json',existing?.sha);
+    window._loadedCfg=cfg;
+    showToast(`✓ config.json saved`);
+  }catch(e){ showToast('Failed: '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='Save config.json to GitHub'; }
+}
+
+// ── ODDS ──────────────────────────────────────────────────────────────────
 function dragOver(e,id){e.preventDefault();document.getElementById(id).classList.add('drag');}
 function dragLeave(id){document.getElementById(id).classList.remove('drag');}
 function dropFile(e,type){e.preventDefault();dragLeave(type+'-drop');processFile(e.dataTransfer.files[0],type);}
@@ -331,7 +459,7 @@ function processFile(file,type){
         const prev=document.getElementById('odds-preview');
         prev.textContent=`✓ ${parsed.length} players loaded`;
         prev.style.display='block';
-        document.getElementById('odds-btn').disabled=!ghToken;
+        if(ghToken) document.getElementById('odds-btn').disabled=false;
       }
       showToast(`✓ ${file.name} — ${parsed.length} entries`);
     }catch(err){ showToast('Invalid JSON: '+err.message); }
@@ -339,7 +467,6 @@ function processFile(file,type){
   reader.readAsText(file);
 }
 
-// ── SAVE ODDS ────────────────────────────────────────────────────────────
 async function saveOdds(){
   if(!requireGitHub()||!pendingOddsJson){showToast('Load an odds file first');return;}
   const btn=document.getElementById('odds-btn');
@@ -354,41 +481,42 @@ async function saveOdds(){
   finally{ btn.disabled=false; btn.textContent='Save odds.json to GitHub'; }
 }
 
-// ── SAVE CONFIG ──────────────────────────────────────────────────────────
-async function saveConfig(){
-  if(!requireGitHub()) return;
-  const btn=document.getElementById('config-btn');
-  btn.disabled=true; btn.textContent='Saving…';
-  try{
-    const {data:current,sha}=await ghGetJson('config.json');
-    const teams=Object.entries(binData.teams||{}).map(([name,t])=>({name,stars:0,picks:t.picks||[]}));
-    const updated={...current,event:{...current.event,status:binData.eventStarted?'live':'pre'},teams};
-    await ghPut('config.json',JSON.stringify(updated,null,2),'Update config.json with latest teams',sha);
-    showToast(`✓ config.json saved — ${teams.length} teams`);
-  }catch(e){ showToast('Failed: '+e.message); }
-  finally{ btn.disabled=false; btn.textContent='Save config.json to GitHub'; }
+// ── SNAPSHOT ──────────────────────────────────────────────────────────────
+// Called by index.html?snapshot=1 popup via window.opener.receiveSnapshot()
+function receiveSnapshot(results){
+  snapshotResults=results;
+  const el=document.getElementById('snapshot-status');
+  el.style.color='var(--green)';
+  el.textContent=`✓ Snapshot received — ${results.length} teams`;
+  document.getElementById('archive-btn').disabled=!ghToken;
+  showToast(`✓ Results snapshotted — ${results.length} teams`);
+}
+
+function doSnapshot(){
+  const url=location.href.replace(/[?#].*$/,'').replace('admin.html','index.html')+'?snapshot=1';
+  const statusEl=document.getElementById('snapshot-status');
+  statusEl.style.color='var(--text-soft)';
+  statusEl.textContent='Opening index.html… waiting for scores (up to 30s)';
+  window.open(url,'_blank','width=500,height=700,noopener=0');
 }
 
 // ── ARCHIVE & RESET ───────────────────────────────────────────────────────
 async function archiveResult(){
   if(!requireGitHub()) return;
-  const eventName=prompt('Event name (e.g. "PGA Championship"):');
+  if(!snapshotResults){ showToast('Snapshot results first'); return; }
+
+  const cfg=window._loadedCfg||{};
+  const eventName=cfg.event?.name||(prompt('Event name:')||'');
+  const year=cfg.event?.year||(parseInt(prompt('Year:'))||new Date().getFullYear());
   if(!eventName) return;
-  const yearStr=prompt('Year (e.g. 2026):');
-  if(!yearStr) return;
-  const year=parseInt(yearStr,10);
-  if(isNaN(year)){ showToast('Invalid year'); return; }
-  const scoresRaw=prompt('Paste final results as JSON:\n[{"name":"Steve","score":-7,"picks":[{"golfer":"Rory McIlroy","score":-7}]},...]');
-  if(!scoresRaw) return;
-  let results;
-  try{ results=JSON.parse(scoresRaw); }
-  catch(e){ showToast('Invalid JSON'); return; }
+
+  if(!confirm(`Archive "${eventName} ${year}" with ${snapshotResults.length} teams to history.json?`)) return;
 
   const btn=document.getElementById('archive-btn');
   btn.disabled=true; btn.textContent='Archiving…';
   try{
     const {data:history,sha}=await ghGetJson('history.json');
-    const updated=[{event:eventName,year,results},...history];
+    const updated=[{event:eventName,year,results:snapshotResults},...history];
     await ghPut('history.json',JSON.stringify(updated,null,2),`Archive ${eventName} ${year}`,sha);
     archiveDone=true;
     document.getElementById('reset-btn').disabled=false;
@@ -409,8 +537,9 @@ async function resetEvent(){
     binData.teams={}; binData.eventStarted=false;
     await saveToBin();
     renderTeams(); renderEventStatus();
-    archiveDone=false;
-    showToast('✓ Reset — back to team selection');
+    snapshotResults=null; archiveDone=false;
+    document.getElementById('snapshot-status').textContent='';
+    showToast('✓ Reset — game back to team selection');
   }catch(e){ showToast('Reset failed: '+e.message); btn.disabled=false; btn.textContent='2 · Reset event'; }
 }
 
@@ -419,14 +548,6 @@ function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast show';
   clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',3200);
-}
-
-async function loadConfigPreview(){
-  try{
-    const r=await fetch('config.json?_='+Date.now());
-    const cfg=await r.json();
-    document.getElementById('hd-sub').textContent=`${cfg.event?.name||''} ${cfg.event?.year||''}`;
-  }catch(e){}
 }
 
 setInterval(loadFromBin,30000);

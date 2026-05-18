@@ -342,76 +342,100 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 const ROUTER_BIN='69de381d36566621a8b0f1ca';
 const ROUTER_KEY='$2a$10$ZZYpFYGdNHFN29hcbu/zfO45tnNgkJaNRV8.qwVGvqFE8DRdFIBhy';
 
-// ── CONFIG + ODDS — loaded from JSON files ────────────────────────────────────
-let BUDGET = 40;
+// ── CONFIG — loaded from config.json + odds.json at startup ──────────────────
+let BUDGET    = 40;
 let MAX_PICKS = 5;
-let TEAMS = [];
-let PLAYERS = [];
+let HOLE_PARS = [4,4,4,4,3,4,4,3,5,4,4,4,4,3,4,5,3,4];
+let TEAMS     = [];
+let PLAYERS   = [];
 
-// ── Cost calculated automatically from odds ───────────────────────
-function oddsToPrice(odds, isFavourite, isOutsider) {
-  if (isFavourite) return 20.0;
-  if (isOutsider) return 4.0;
-  const raw = 130 / Math.pow(odds, 0.31) - 1;
-  const rounded = Math.round(raw * 2) / 2;
-  return Math.min(19.5, Math.max(4.5, rounded));
+function oddsToPrice(odds, isFav, isOut){
+  if(isFav) return 20.0;
+  if(isOut) return 4.0;
+  const raw=130/Math.pow(odds,0.31)-1;
+  return Math.min(19.5, Math.max(4.5, Math.round(raw*2)/2));
 }
 
-async function loadConfigAndOdds() {
+async function loadConfigAndOdds(){
   const [cfgRes, oddsRes] = await Promise.all([
-    fetch('config.json?_=' + Date.now()),
-    fetch('odds.json?_=' + Date.now())
+    fetch('config.json?_='+Date.now()),
+    fetch('odds.json?_='+Date.now())
   ]);
-  const cfg = await cfgRes.json();
+  const cfg      = await cfgRes.json();
   const oddsData = await oddsRes.json();
 
-  // Apply rules
-  BUDGET    = cfg.rules?.budget      ?? 40;
+  // Rules
+  BUDGET    = cfg.rules?.budget       ?? 40;
   MAX_PICKS = cfg.rules?.picksPerTeam ?? 5;
+  HOLE_PARS = cfg.rules?.holePars     ?? HOLE_PARS;
 
-  // Build PLAYERS from odds
-  const minOdds = Math.min(...oddsData.map(p => p.odds));
-  const maxOdds = Math.max(...oddsData.map(p => p.odds));
+  // Players
+  const minOdds = Math.min(...oddsData.map(p=>p.odds));
+  const maxOdds = Math.max(...oddsData.map(p=>p.odds));
   PLAYERS.length = 0;
-  oddsData.forEach(p => PLAYERS.push({ ...p, cost: oddsToPrice(p.odds, p.odds === minOdds, p.odds === maxOdds) }));
+  oddsData.forEach(p=>PLAYERS.push({...p, cost:oddsToPrice(p.odds, p.odds===minOdds, p.odds===maxOdds)}));
 
   // Teams
   TEAMS.length = 0;
-  (cfg.teams || []).forEach(t => TEAMS.push(t));
+  (cfg.teams||[]).forEach(t=>TEAMS.push(t));
 
-  // Update page text from config
-  const ev = cfg.event || {};
-  const espnId = ev.espnEventId || '';
-  window._ESPN_API = espnId
-    ? `https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=${espnId}`
+  // Patch UI strings
+  const ev = cfg.event||{};
+  window._ESPN_API = ev.espnEventId
+    ? `https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=${ev.espnEventId}`
     : null;
   window._CONFIG = cfg;
 
-  // Patch visible strings
-  const selTitles = document.querySelectorAll('.select-event-title');
-  selTitles.forEach(el => el.textContent = `${ev.name || ''} ${ev.year || ''}`);
-  const selSubs = document.querySelectorAll('.select-event-sub');
-  selSubs.forEach(el => el.textContent = ev.subtitle || '');
-  const pgaTitles = document.querySelectorAll('.pga-event-title');
-  pgaTitles.forEach(el => el.textContent = `${ev.name || ''} Fantasy ${ev.year || ''}`);
-  const pgaSubs = document.querySelectorAll('.pga-event-sub');
-  pgaSubs.forEach(el => el.textContent = ev.subtitle || '');
-
-  // Patch budget display
-  const budgetNums = document.getElementById('budget-nums');
-  if (budgetNums) budgetNums.textContent = `£${BUDGET.toFixed(1)}m`;
+  document.querySelectorAll('.select-event-title').forEach(el=>el.textContent=`${ev.name||''} ${ev.year||''}`);
+  document.querySelectorAll('.select-event-sub').forEach(el=>el.textContent=ev.subtitle||'');
+  document.querySelectorAll('.pga-event-title').forEach(el=>el.textContent=`${ev.name||''} Fantasy ${ev.year||''}`);
+  document.querySelectorAll('.pga-event-sub').forEach(el=>el.textContent=ev.subtitle||'');
+  const bn=document.getElementById('budget-nums');
+  if(bn) bn.textContent=`£${BUDGET.toFixed(1)}m`;
 
   return cfg;
 }
 
-let picks = []; // array of player names
+// ── SNAPSHOT — triggered by admin via window.opener ──────────────────────────
+// index.html?snapshot=1 opened as popup by admin.html
+// Waits for scores, builds results array, posts back to opener then closes.
+function maybeSnapshot(){
+  if(!window.opener) return;               // only if opened by admin
+  const params=new URLSearchParams(location.search);
+  if(params.get('snapshot')!=='1') return;
+  // Poll until ESPN data arrives (up to 30s)
+  let attempts=0;
+  const poll=setInterval(()=>{
+    attempts++;
+    const pl=window._lastPlayers;
+    if(pl && pl.length>=5){
+      clearInterval(poll);
+      const results=buildSnapshotResults(pl);
+      try{ window.opener.receiveSnapshot(results); }catch(e){}
+      setTimeout(()=>window.close(),800);
+    }
+    if(attempts>60) clearInterval(poll); // give up after 30s
+  },500);
+}
+
+function buildSnapshotResults(pl){
+  return TEAMS.map(t=>{
+    const picks=t.picks.map(nm=>{
+      const p=find(pl,nm);
+      return {golfer:nm, score:p?p.score:0};
+    });
+    const score=picks.reduce((s,p)=>s+p.score,0);
+    return {name:t.name, score, picks};
+  }).sort((a,b)=>a.score-b.score);
+}
+
+
+let picks = [];
 let searchQuery = '';
 
-
-function spent() { return picks.reduce((s,n)=>{ const p=PLAYERS.find(x=>x.name===n); return s+(p?p.cost:0); },0); }
-function remaining() { return BUDGET - spent(); }
-function fmtOdds(o) { return `+${o.toLocaleString()}`; }
-function fmtCost(c) { return c.toFixed(1); }
+function spent(){ return picks.reduce((s,n)=>{const p=PLAYERS.find(x=>x.name===n);return s+(p?p.cost:0);},0); }
+function remaining(){ return BUDGET-spent(); }
+function fmtCost(c){ return c.toFixed(1); }
 
 function updateBudget() {
   const s = spent();
@@ -774,7 +798,7 @@ function parseESPNJson(data){
 
       // ── Today (current round score to par) ────────────────────────────────
       let today=null;
-      const PAR=72;
+      const PAR=HOLE_PARS.reduce((a,b)=>a+b,0);
 
       if(Array.isArray(c.linescores) && c.linescores.length){
         // Find the last linescore that actually has a displayValue (round score to par)
@@ -989,7 +1013,7 @@ function renderTeams(pl){
 
 
 // Quail Hollow par 71 — update to Aronimink GC layout before 2026 tournament
-const HOLE_PARS=[4,4,4,4,3,4,4,3,5,4,4,4,4,3,4,5,3,4]; // update to Aronimink GC before 2026 tournament
+// HOLE_PARS loaded from config.json — see loadConfigAndOdds()
 
 function buildScorecard(p){
   if(!p.holes||!p.holes.entries||!p.holes.entries.length) return '<div class="sc-no-data">No hole data available yet</div>';
@@ -1214,9 +1238,10 @@ function updateRefreshCounter(n){
   if(el) el.textContent=`↻ refreshed ${n} ${n===1?'time':'times'} by all visitors`;
 }
 
-// ESPN API URL is set dynamically from config.json
-const ESPN_API_DEFAULT='https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=401811947';
-function getESPN_API(){ return window._ESPN_API || ESPN_API_DEFAULT; }
+// ESPN_API built dynamically from config.json espnEventId
+function getESPN_API(){
+  return window._ESPN_API || 'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?event=401811947';
+}
 
 async function fetchAndRender(){
   const dot =document.getElementById('dot');
@@ -1325,15 +1350,15 @@ function showPage(page){
     document.getElementById('page-select').style.display='block';
     document.body.style.background='#f5f3ee';
     updateBudget(); updateSlots(); updateSubmit(); render();
-  }else if(page==='no-event'){
-    document.getElementById('page-loading').style.display='flex';
+  } else if(page==='no-event'){
     document.querySelector('.loading-title').textContent='No active event';
     document.querySelector('.loading-sub').textContent='Check back when the next tournament begins';
     document.querySelector('.dots').style.display='none';
-  }else{
+  } else {
     document.getElementById('page-pga').style.display='block';
     document.body.style.background='#f4f2ed';
-    (async()=>{fetchAndRender();})();
+    fetchAndRender();
+    maybeSnapshot();
   }
 }
 
@@ -1341,17 +1366,10 @@ async function init(){
   try{
     const cfg = await loadConfigAndOdds();
     const status = cfg.event?.status || 'pre';
-    if(status === 'live'){
-      showPage('pga');
-    } else if(status === 'pre'){
-      showPage('select');
-    } else {
-      showPage('no-event');
-    }
-  }catch(e){
-    console.error('Failed to load config:', e);
-    // Fallback: show select page with empty player list
-    showPage('select');
+    showPage(status==='live' ? 'pga' : status==='pre' ? 'select' : 'no-event');
+  } catch(e){
+    console.error('Config load failed:',e);
+    showPage('select'); // graceful fallback
   }
 }
 init();
